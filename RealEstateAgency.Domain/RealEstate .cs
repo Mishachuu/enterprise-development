@@ -5,6 +5,10 @@
 /// </summary>
 public class RealEstate
 {
+    /// <summary>
+    /// идентификатор объекта
+    /// </summary>
+    public int Id { get; set; }
     public enum PropertyType
     {
         Residential,
