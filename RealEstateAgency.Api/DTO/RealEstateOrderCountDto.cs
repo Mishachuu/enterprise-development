@@ -1,8 +1,7 @@
-﻿namespace RealEstateAgency.Api.DTO
+﻿namespace RealEstateAgency.Api.DTO;
+
+public class RealEstateOrderCountDto
 {
-    public class RealEstateOrderCountDto
-    {
-        public string? RealEstateType { get; set; }
-        public int OrderCount { get; set; }
-    }
+    public string? RealEstateType { get; set; }
+    public int OrderCount { get; set; }
 }
