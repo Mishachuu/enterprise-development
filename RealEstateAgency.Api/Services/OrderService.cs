@@ -7,35 +7,38 @@ namespace RealEstateAgency.Api.Services;
 
 public class OrderService(IRepository<Order, int> orderRepository, IMapper mapper)
 {
-    private readonly IRepository<Order, int> _orderRepository = orderRepository;
-    private readonly IMapper _mapper = mapper;
-
     public async Task<List<OrderDto>> GetAllOrders()
     {
-        var orders = await _orderRepository.GetAsList();
-        return _mapper.Map<List<OrderDto>>(orders);
+        var orders = await orderRepository.GetAsList();
+        return mapper.Map<List<OrderDto>>(orders);
     }
 
     public async Task<List<OrderDto>> GetOrdersByPredicate(Func<Order, bool> predicate)
     {
-        var orders = await _orderRepository.GetAsList(predicate);
-        return _mapper.Map<List<OrderDto>>(orders);
+        var orders = await orderRepository.GetAsList(predicate);
+        return mapper.Map<List<OrderDto>>(orders);
     }
 
     public async Task AddOrder(OrderDto orderDto)
     {
-        var order = _mapper.Map<Order>(orderDto);
-        await _orderRepository.Add(order);
+        var order = mapper.Map<Order>(orderDto);
+        await orderRepository.Add(order);
     }
 
-    public async Task UpdateOrder(OrderDto orderDto)
+    public async Task UpdateOrder(int id, OrderDto orderDto)
     {
-        var order = _mapper.Map<Order>(orderDto);
-        await _orderRepository.Update(order);
+        var allOrder = await orderRepository.GetAsList();
+        if (!allOrder.Any(l => l.Id == id))
+        {
+            throw new ArgumentException("Неправильный ID");
+        }
+        var order = mapper.Map<Order>(orderDto);
+        order.Id = id;
+        await orderRepository.Update(order);
     }
 
     public async Task DeleteOrder(int orderId)
     {
-        await _orderRepository.Delete(orderId);
+        await orderRepository.Delete(orderId);
     }
 }

@@ -52,7 +52,7 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
         }
 
         await _realEstateService.AddRealEstate(realEstateDto);
-        return CreatedAtAction(nameof(GetRealEstate), new { id = realEstateDto.Id }, realEstateDto);
+        return Ok();
     }
 
     /// <summary>
@@ -69,18 +69,13 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
             return BadRequest(ModelState);
         }
 
-        if (id != realEstateDto.Id)
-        {
-            return BadRequest("Идентификатор в URL и в теле запроса не совпадают.");
-        }
-
         var realEstates = await _realEstateService.GetRealEstatesByPredicate(r => r.Id == id);
         if (realEstates == null || realEstates.Count == 0)
         {
             return NotFound($"Объект недвижимости с идентификатором {id} не найден.");
         }
 
-        await _realEstateService.UpdateRealEstate(realEstateDto);
+        await _realEstateService.UpdateRealEstate(id, realEstateDto);
         return NoContent();
     }
 

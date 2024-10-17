@@ -54,7 +54,7 @@ public class ClientsController(ClientService clientService) : ControllerBase
         }
 
         await _clientService.AddClient(clientDto);
-        return CreatedAtAction(nameof(GetClient), new { id = clientDto.ClientId }, clientDto);
+        return Ok();
     }
 
     /// <summary>
@@ -70,13 +70,7 @@ public class ClientsController(ClientService clientService) : ControllerBase
         {
             return BadRequest(ModelState);
         }
-
-        if (id != clientDto.ClientId)
-        {
-            return BadRequest("ID в URL и в теле запроса не совпадают");
-        }
-
-        await _clientService.UpdateClient(clientDto);
+        await _clientService.UpdateClient(id, clientDto);
         return NoContent();
     }
 

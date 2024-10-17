@@ -16,5 +16,8 @@
 	<ItemGroup>
 		<ProjectReference Include="..\RealEstateAgency.Domain\RealEstateAgency.Domain.csproj" />
 	</ItemGroup>
-
+	<PropertyGroup>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+	</PropertyGroup>
 </Project>

@@ -54,7 +54,7 @@ public class OrdersController(OrderService orderService) : ControllerBase
         }
 
         await _orderService.AddOrder(orderDto);
-        return CreatedAtAction(nameof(GetOrder), new { id = orderDto.OrderId }, orderDto);
+        return Ok();
     }
 
     /// <summary>
@@ -70,13 +70,7 @@ public class OrdersController(OrderService orderService) : ControllerBase
         {
             return BadRequest(ModelState);
         }
-
-        if (id != orderDto.OrderId)
-        {
-            return BadRequest("ID в URL и в теле запроса не совпадают");
-        }
-
-        await _orderService.UpdateOrder(orderDto);
+        await _orderService.UpdateOrder(id, orderDto);
         return NoContent();
     }
 

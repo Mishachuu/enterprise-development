@@ -7,36 +7,39 @@ namespace RealEstateAgency.Api.Services;
 
 public class RealEstateService(IRepository<RealEstate, int> realEstateRepository, IMapper mapper)
 {
-    private readonly IRepository<RealEstate, int> _realEstateRepository = realEstateRepository;
-    private readonly IMapper _mapper = mapper;
-
     public async Task<List<RealEstateDto>> GetAllRealEstates()
     {
-        var realEstates = await _realEstateRepository.GetAsList();
-        return _mapper.Map<List<RealEstateDto>>(realEstates);
+        var realEstates = await realEstateRepository.GetAsList();
+        return mapper.Map<List<RealEstateDto>>(realEstates);
     }
 
     public async Task<List<RealEstateDto>> GetRealEstatesByPredicate(Func<RealEstate, bool> predicate)
     {
-        var realEstates = await _realEstateRepository.GetAsList(predicate);
-        return _mapper.Map<List<RealEstateDto>>(realEstates);
+        var realEstates = await realEstateRepository.GetAsList(predicate);
+        return mapper.Map<List<RealEstateDto>>(realEstates);
     }
 
     public async Task AddRealEstate(RealEstateDto realEstateDto)
     {
-        var realEstate = _mapper.Map<RealEstate>(realEstateDto);
-        await _realEstateRepository.Add(realEstate);
+        var realEstate = mapper.Map<RealEstate>(realEstateDto);
+        await realEstateRepository.Add(realEstate);
     }
 
-    public async Task UpdateRealEstate(RealEstateDto realEstateDto)
+    public async Task UpdateRealEstate(int id, RealEstateDto realEstateDto)
     {
-        var realEstate = _mapper.Map<RealEstate>(realEstateDto);
-        await _realEstateRepository.Update(realEstate);
+        var allRealEstate = await realEstateRepository.GetAsList();
+        if (!allRealEstate.Any(l => l.Id == id))
+        {
+            throw new ArgumentException("Неправильный ID");
+        }
+        var realEstate = mapper.Map<RealEstate>(realEstateDto);
+        realEstate.Id = id;
+        await realEstateRepository.Update(realEstate);
     }
 
     public async Task DeleteRealEstate(int realEstateId)
     {
-        await _realEstateRepository.Delete(realEstateId);
+        await realEstateRepository.Delete(realEstateId);
     }
 
 }

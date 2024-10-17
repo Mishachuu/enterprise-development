@@ -5,6 +5,7 @@ namespace RealEstateAgency.Domain.Repository.Mock
     public class RealEstateRepository : IRepository<RealEstate, int>
     {
         private static readonly List<RealEstate> _realEstates = [];
+        private static int _currentId;
 
         public async Task<List<RealEstate>> GetAsList()
         {
@@ -18,6 +19,7 @@ namespace RealEstateAgency.Domain.Repository.Mock
 
         public async Task Add(RealEstate newRecord)
         {
+            newRecord.Id = _currentId++;
             await Task.Run(() => _realEstates.Add(newRecord));
         }
 

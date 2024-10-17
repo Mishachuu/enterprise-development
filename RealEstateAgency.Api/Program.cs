@@ -20,6 +20,7 @@ builder.Services.AddTransient<IRepository<RealEstate, int>, RealEstateRepository
 builder.Services.AddTransient<ClientService>();
 builder.Services.AddTransient<OrderService>();
 builder.Services.AddTransient<RealEstateService>();
+builder.Services.AddTransient<AnalyticsService>();
 
 
 builder.Services.AddSwaggerGen(c =>
