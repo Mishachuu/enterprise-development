@@ -10,15 +10,23 @@ public class AnalyticsService(IRepository<Order, int> orderRepository, IReposito
 
     public async Task<List<ClientDto>> GetClientsByRealEstateType(string type)
     {
-        if (!Enum.TryParse<RealEstate.PropertyType>(type, true, out var propertyType))
-            throw new ArgumentException("Неверный тип недвижимости.");
+        try
+        {
+            if (!Enum.TryParse<RealEstate.PropertyType>(type, true, out var propertyType))
+                throw new ArgumentException("Неверный тип недвижимости.");
 
-        var orders = await orderRepository.GetAsList(o => o != null && o.Type == Order.PurchaseOrSale.Purchase && o.Item.Type == propertyType);
-        var clientIds = orders.Select(o => o.Client.ClientId).Distinct().ToList();
+            var orders = await orderRepository.GetAsList(o => o != null && o.Type == Order.PurchaseOrSale.Purchase && o.Item.Type == propertyType);
+            var clientIds = orders.Select(o => o.Client.ClientId).Distinct().ToList();
 
-        var clients = await clientRepository.GetAsList(c => clientIds.Contains(c.ClientId));
+            var clients = (await clientRepository.GetAsList(c => clientIds.Contains(c.ClientId))).OrderBy(c => c.FirstAndLastName);
 
-        return clients.OrderBy(c => c.FirstAndLastName).Select(c => mapper.Map<ClientDto>(c)).ToList();
+            return mapper.Map<List<ClientDto>>(clients);
+        }
+        catch (ArgumentException e)
+        {
+            Console.WriteLine($"Error: {e.Message}");
+            return [];
+        }
     }
 
     public async Task<List<ClientDto>> GetSellersByPeriod(DateTime startDate, DateTime endDate)
@@ -28,7 +36,7 @@ public class AnalyticsService(IRepository<Order, int> orderRepository, IReposito
 
         var clients = await clientRepository.GetAsList(c => clientIds.Contains(c.ClientId));
 
-        return clients.Select(c => mapper.Map<ClientDto>(c)).ToList();
+        return mapper.Map<List<ClientDto>>(clients);
     }
 
     public async Task<SellerRealEstateDto> GetSellersForBuyerOrder(int buyerOrderId)
@@ -48,7 +56,7 @@ public class AnalyticsService(IRepository<Order, int> orderRepository, IReposito
         var result = new SellerRealEstateDto
         {
             RealEstate = mapper.Map<RealEstateDto>(realEstate),
-            Sellers = matchingSellers.Select(c => mapper.Map<ClientDto>(c)).ToList()
+            Sellers = mapper.Map<List<ClientDto>>(matchingSellers)
         };
 
         return result;

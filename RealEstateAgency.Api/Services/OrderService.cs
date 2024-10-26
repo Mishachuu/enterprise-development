@@ -3,42 +3,66 @@ using RealEstateAgency.Api.DTO;
 using RealEstateAgency.Domain;
 using RealEstateAgency.Domain.Interface;
 
-namespace RealEstateAgency.Api.Services;
-
-public class OrderService(IRepository<Order, int> orderRepository, IMapper mapper)
+namespace RealEstateAgency.Api.Services
 {
-    public async Task<List<OrderDto>> GetAllOrders()
+    public class OrderService(
+        IRepository<Order, int> orderRepository,
+        IRepository<Client, int> clientRepository,
+        IRepository<RealEstate, int> realEstateRepository,
+        IMapper mapper)
     {
-        var orders = await orderRepository.GetAsList();
-        return mapper.Map<List<OrderDto>>(orders);
-    }
+        private readonly IRepository<Order, int> _orderRepository = orderRepository;
+        private readonly IRepository<Client, int> _clientRepository = clientRepository;
+        private readonly IRepository<RealEstate, int> _realEstateRepository = realEstateRepository;
+        private readonly IMapper _mapper = mapper;
 
-    public async Task<List<OrderDto>> GetOrdersByPredicate(Func<Order, bool> predicate)
-    {
-        var orders = await orderRepository.GetAsList(predicate);
-        return mapper.Map<List<OrderDto>>(orders);
-    }
-
-    public async Task AddOrder(OrderDto orderDto)
-    {
-        var order = mapper.Map<Order>(orderDto);
-        await orderRepository.Add(order);
-    }
-
-    public async Task UpdateOrder(int id, OrderDto orderDto)
-    {
-        var allOrder = await orderRepository.GetAsList();
-        if (!allOrder.Any(l => l.Id == id))
+        public async Task<List<OrderDto>> GetAllOrders()
         {
-            throw new ArgumentException("Неправильный ID");
+            var orders = await _orderRepository.GetAsList();
+            return _mapper.Map<List<OrderDto>>(orders);
         }
-        var order = mapper.Map<Order>(orderDto);
-        order.Id = id;
-        await orderRepository.Update(order);
-    }
 
-    public async Task DeleteOrder(int orderId)
-    {
-        await orderRepository.Delete(orderId);
+        public async Task<List<OrderDto>> GetOrdersByPredicate(Func<Order, bool> predicate)
+        {
+            var orders = await _orderRepository.GetAsList(predicate);
+            return _mapper.Map<List<OrderDto>>(orders);
+        }
+
+        public async Task AddOrder(OrderDto orderDto)
+        {
+            var order = _mapper.Map<Order>(orderDto);
+
+            var clientList = await _clientRepository.GetAsList(c => c.ClientId == orderDto.ClientId);
+            var client = clientList.FirstOrDefault() ?? throw new ArgumentException($"Клиент с ID {orderDto.ClientId} не существует.");
+            var realEstateList = await _realEstateRepository.GetAsList(r => r.Id == orderDto.RealEstateId);
+            var realEstate = realEstateList.FirstOrDefault() ?? throw new ArgumentException($"Объект недвижимости с ID {orderDto.RealEstateId} не существует.");
+            order.Client = client;
+            order.Item = realEstate;
+
+            await _orderRepository.Add(order);
+        }
+
+        public async Task UpdateOrder(int id, OrderDto orderDto)
+        {
+            var existingOrderList = await _orderRepository.GetAsList(o => o.Id == id);
+            var existingOrder = existingOrderList.FirstOrDefault() ?? throw new ArgumentException($"Заявка с ID {id} не существует.");
+            var order = _mapper.Map<Order>(orderDto);
+            order.Id = id;
+
+            var clientList = await _clientRepository.GetAsList(c => c.ClientId == orderDto.ClientId);
+            var client = clientList.FirstOrDefault() ?? throw new ArgumentException($"Клиент с ID {orderDto.ClientId} не существует.");
+            order.Client = client;
+
+            var realEstateList = await _realEstateRepository.GetAsList(r => r.Id == orderDto.RealEstateId);
+            var realEstate = realEstateList.FirstOrDefault() ?? throw new ArgumentException($"Объект недвижимости с ID {orderDto.RealEstateId} не существует.");
+            order.Item = realEstate;
+
+            await _orderRepository.Update(order);
+        }
+
+        public async Task DeleteOrder(int orderId)
+        {
+            await _orderRepository.Delete(orderId);
+        }
     }
 }

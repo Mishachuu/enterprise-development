@@ -8,15 +8,13 @@ namespace RealEstateAgency.Api.Controllers;
 [ApiController]
 public class AnalyticsController(AnalyticsService analyticsService) : ControllerBase
 {
-    private readonly AnalyticsService _analyticsService = analyticsService;
-
     /// <summary>
     /// вывести сведения о всех клиентах, ищущих недвижимость заданного типа, упорядочить по ФИО.
     /// </summary>
     [HttpGet("clients-by-realestate-type")]
     public async Task<ActionResult<List<ClientDto>>> GetClientsByRealEstateType(string type)
     {
-        var result = await _analyticsService.GetClientsByRealEstateType(type);
+        var result = await analyticsService.GetClientsByRealEstateType(type);
         return Ok(result);
     }
 
@@ -26,7 +24,7 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
     [HttpGet("sellers-by-period")]
     public async Task<ActionResult<List<ClientDto>>> GetSellersByPeriod(DateTime startDate, DateTime endDate)
     {
-        var result = await _analyticsService.GetSellersByPeriod(startDate, endDate);
+        var result = await analyticsService.GetSellersByPeriod(startDate, endDate);
         return Ok(result);
     }
 
@@ -36,7 +34,7 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
     [HttpGet("matching-sellers-for-buyer/{buyerOrderId}")]
     public async Task<ActionResult<SellerRealEstateDto>> GetSellersForBuyerOrder(int buyerOrderId)
     {
-        var result = await _analyticsService.GetSellersForBuyerOrder(buyerOrderId);
+        var result = await analyticsService.GetSellersForBuyerOrder(buyerOrderId);
         return Ok(result);
     }
 
@@ -46,7 +44,7 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
     [HttpGet("order-count-by-type")]
     public async Task<ActionResult<List<RealEstateOrderCountDto>>> GetOrderCountByRealEstateType()
     {
-        var result = await _analyticsService.GetOrderCountByRealEstateType();
+        var result = await analyticsService.GetOrderCountByRealEstateType();
         return Ok(result);
     }
 
@@ -56,7 +54,7 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
     [HttpGet("top-purchasers")]
     public async Task<ActionResult<List<ClientOrderCountDto>>> GetTop5Purchasers()
     {
-        var result = await _analyticsService.GetTop5Purchasers();
+        var result = await analyticsService.GetTop5Purchasers();
         return Ok(result);
     }
 
@@ -66,7 +64,7 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
     [HttpGet("top-sellers")]
     public async Task<ActionResult<List<ClientOrderCountDto>>> GetTop5Sellers()
     {
-        var result = await _analyticsService.GetTop5Sellers();
+        var result = await analyticsService.GetTop5Sellers();
         return Ok(result);
     }
 
@@ -76,7 +74,7 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
     [HttpGet("min-price-orders")]
     public async Task<ActionResult<List<ClientOrderPriceDto>>> GetClientsWithMinOrderPrice()
     {
-        var result = await _analyticsService.GetClientsWithMinOrderPrice();
+        var result = await analyticsService.GetClientsWithMinOrderPrice();
         return Ok(result);
     }
 }
