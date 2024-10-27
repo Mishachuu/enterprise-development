@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RealEstateAgency.Api.DTO;
 using RealEstateAgency.Api.Services;
+using RealEstateAgency.Domain;
 
 namespace RealEstateAgency.Api.Controllers;
 
@@ -14,8 +15,20 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
     [HttpGet("clients-by-realestate-type")]
     public async Task<ActionResult<List<ClientDto>>> GetClientsByRealEstateType(string type)
     {
-        var result = await analyticsService.GetClientsByRealEstateType(type);
-        return Ok(result);
+        if (!Enum.TryParse<RealEstate.PropertyType>(type, true, out var propertyType))
+        {
+            return BadRequest("Неверный тип недвижимости.");
+        }
+
+        try
+        {
+            var result = await analyticsService.GetClientsByPropertyTypeAsync(propertyType);
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "Внутренняя ошибка сервера.");
+        }
     }
 
     /// <summary>

@@ -3,62 +3,61 @@ using RealEstateAgency.Api.DTO;
 using RealEstateAgency.Domain;
 using RealEstateAgency.Domain.Interface;
 
-namespace RealEstateAgency.Api.Services
+namespace RealEstateAgency.Api.Services;
+
+public class OrderService(
+    IRepository<Order, int> orderRepository,
+    IRepository<Client, int> clientRepository,
+    IRepository<RealEstate, int> realEstateRepository,
+    IMapper mapper)
 {
-    public class OrderService(
-        IRepository<Order, int> orderRepository,
-        IRepository<Client, int> clientRepository,
-        IRepository<RealEstate, int> realEstateRepository,
-        IMapper mapper)
+
+    public async Task<List<OrderDto>> GetAllOrders()
     {
+        var orders = await orderRepository.GetAsList();
+        return mapper.Map<List<OrderDto>>(orders);
+    }
 
-        public async Task<List<OrderDto>> GetAllOrders()
-        {
-            var orders = await orderRepository.GetAsList();
-            return mapper.Map<List<OrderDto>>(orders);
-        }
+    public async Task<List<OrderDto>> GetOrdersByPredicate(Func<Order, bool> predicate)
+    {
+        var orders = await orderRepository.GetAsList(predicate);
+        return mapper.Map<List<OrderDto>>(orders);
+    }
 
-        public async Task<List<OrderDto>> GetOrdersByPredicate(Func<Order, bool> predicate)
-        {
-            var orders = await orderRepository.GetAsList(predicate);
-            return mapper.Map<List<OrderDto>>(orders);
-        }
+    public async Task AddOrder(OrderDto orderDto)
+    {
+        var order = mapper.Map<Order>(orderDto);
 
-        public async Task AddOrder(OrderDto orderDto)
-        {
-            var order = mapper.Map<Order>(orderDto);
+        var clientList = await clientRepository.GetAsList(c => c.ClientId == orderDto.ClientId);
+        var client = clientList.FirstOrDefault() ?? throw new ArgumentException($"Клиент с ID {orderDto.ClientId} не существует.");
+        var realEstateList = await realEstateRepository.GetAsList(r => r.Id == orderDto.RealEstateId);
+        var realEstate = realEstateList.FirstOrDefault() ?? throw new ArgumentException($"Объект недвижимости с ID {orderDto.RealEstateId} не существует.");
+        order.Client = client;
+        order.Item = realEstate;
 
-            var clientList = await clientRepository.GetAsList(c => c.ClientId == orderDto.ClientId);
-            var client = clientList.FirstOrDefault() ?? throw new ArgumentException($"Клиент с ID {orderDto.ClientId} не существует.");
-            var realEstateList = await realEstateRepository.GetAsList(r => r.Id == orderDto.RealEstateId);
-            var realEstate = realEstateList.FirstOrDefault() ?? throw new ArgumentException($"Объект недвижимости с ID {orderDto.RealEstateId} не существует.");
-            order.Client = client;
-            order.Item = realEstate;
+        await orderRepository.Add(order);
+    }
 
-            await orderRepository.Add(order);
-        }
+    public async Task UpdateOrder(int id, OrderDto orderDto)
+    {
+        var existingOrderList = await orderRepository.GetAsList(o => o.Id == id);
+        var existingOrder = existingOrderList.FirstOrDefault() ?? throw new ArgumentException($"Заявка с ID {id} не существует.");
+        var order = mapper.Map<Order>(orderDto);
+        order.Id = id;
 
-        public async Task UpdateOrder(int id, OrderDto orderDto)
-        {
-            var existingOrderList = await orderRepository.GetAsList(o => o.Id == id);
-            var existingOrder = existingOrderList.FirstOrDefault() ?? throw new ArgumentException($"Заявка с ID {id} не существует.");
-            var order = mapper.Map<Order>(orderDto);
-            order.Id = id;
+        var clientList = await clientRepository.GetAsList(c => c.ClientId == orderDto.ClientId);
+        var client = clientList.FirstOrDefault() ?? throw new ArgumentException($"Клиент с ID {orderDto.ClientId} не существует.");
+        order.Client = client;
 
-            var clientList = await clientRepository.GetAsList(c => c.ClientId == orderDto.ClientId);
-            var client = clientList.FirstOrDefault() ?? throw new ArgumentException($"Клиент с ID {orderDto.ClientId} не существует.");
-            order.Client = client;
+        var realEstateList = await realEstateRepository.GetAsList(r => r.Id == orderDto.RealEstateId);
+        var realEstate = realEstateList.FirstOrDefault() ?? throw new ArgumentException($"Объект недвижимости с ID {orderDto.RealEstateId} не существует.");
+        order.Item = realEstate;
 
-            var realEstateList = await realEstateRepository.GetAsList(r => r.Id == orderDto.RealEstateId);
-            var realEstate = realEstateList.FirstOrDefault() ?? throw new ArgumentException($"Объект недвижимости с ID {orderDto.RealEstateId} не существует.");
-            order.Item = realEstate;
+        await orderRepository.Update(order);
+    }
 
-            await orderRepository.Update(order);
-        }
-
-        public async Task DeleteOrder(int orderId)
-        {
-            await orderRepository.Delete(orderId);
-        }
+    public async Task DeleteOrder(int orderId)
+    {
+        await orderRepository.Delete(orderId);
     }
 }

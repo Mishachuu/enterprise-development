@@ -8,26 +8,16 @@ namespace RealEstateAgency.Api.Services;
 public class AnalyticsService(IRepository<Order, int> orderRepository, IRepository<Client, int> clientRepository, IMapper mapper)
 {
 
-    public async Task<List<ClientDto>> GetClientsByRealEstateType(string type)
+    public async Task<List<ClientDto>> GetClientsByPropertyTypeAsync(RealEstate.PropertyType propertyType)
     {
-        try
-        {
-            if (!Enum.TryParse<RealEstate.PropertyType>(type, true, out var propertyType))
-                throw new ArgumentException("Неверный тип недвижимости.");
+        var orders = await orderRepository.GetAsList(o => o != null && o.Type == Order.PurchaseOrSale.Purchase && o.Item.Type == propertyType);
+        var clientIds = orders.Select(o => o.Client.ClientId).Distinct().ToList();
 
-            var orders = await orderRepository.GetAsList(o => o != null && o.Type == Order.PurchaseOrSale.Purchase && o.Item.Type == propertyType);
-            var clientIds = orders.Select(o => o.Client.ClientId).Distinct().ToList();
+        var clients = (await clientRepository.GetAsList(c => clientIds.Contains(c.ClientId))).OrderBy(c => c.FirstAndLastName);
 
-            var clients = (await clientRepository.GetAsList(c => clientIds.Contains(c.ClientId))).OrderBy(c => c.FirstAndLastName);
-
-            return mapper.Map<List<ClientDto>>(clients);
-        }
-        catch (ArgumentException e)
-        {
-            Console.WriteLine($"Error: {e.Message}");
-            return [];
-        }
+        return mapper.Map<List<ClientDto>>(clients.ToList());
     }
+
 
     public async Task<List<ClientDto>> GetSellersByPeriod(DateTime startDate, DateTime endDate)
     {
