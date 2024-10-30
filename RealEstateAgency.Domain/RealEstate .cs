@@ -37,6 +37,4 @@ public class RealEstate
     /// количество комнат
     /// </summary>
     public int NumberOfRooms { get; set; }
-
-    public required List<Order> Orders { get; set; }
 }

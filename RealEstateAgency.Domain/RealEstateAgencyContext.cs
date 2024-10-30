@@ -14,11 +14,6 @@ public class RealEstateAgencyContext(DbContextOptions<RealEstateAgencyContext> o
         {
             entity.HasKey(c => c.Id);
 
-            entity.HasMany(c => c.Orders)
-                  .WithOne(o => o.Client)
-                  .HasForeignKey(o => o.ClientId)
-                  .OnDelete(DeleteBehavior.Restrict);
-
             entity.Property(c => c.FirstAndLastName).IsRequired();
             entity.Property(c => c.Pasport).IsRequired();
             entity.Property(c => c.Address).IsRequired();
@@ -27,11 +22,6 @@ public class RealEstateAgencyContext(DbContextOptions<RealEstateAgencyContext> o
         modelBuilder.Entity<RealEstate>(entity =>
         {
             entity.HasKey(r => r.Id);
-
-            entity.HasMany(r => r.Orders)
-                  .WithOne(o => o.RealEstate)
-                  .HasForeignKey(o => o.RealEstateId)
-                  .OnDelete(DeleteBehavior.Cascade);
 
             entity.Property(r => r.Address).IsRequired();
 
@@ -42,16 +32,6 @@ public class RealEstateAgencyContext(DbContextOptions<RealEstateAgencyContext> o
         modelBuilder.Entity<Order>(entity =>
         {
             entity.HasKey(o => o.Id);
-
-            entity.HasOne(o => o.Client)
-                  .WithMany(c => c.Orders)
-                  .HasForeignKey(o => o.ClientId)
-                  .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasOne(o => o.RealEstate)
-                  .WithMany(r => r.Orders)
-                  .HasForeignKey(o => o.RealEstateId)
-                  .OnDelete(DeleteBehavior.Cascade);
 
             entity.Property(o => o.Type)
                   .HasConversion<string>();

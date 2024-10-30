@@ -37,6 +37,4 @@ public class Client
     /// почта
     /// </summary>
     public string? Email { get; set; }
-
-    public required List<Order> Orders { get; set; }
 }

@@ -18,6 +18,7 @@ public static class TestData
                 Address = "45 Kuybysheva St, Samara",
                 Square = 85.5,
                 NumberOfRooms = 3
+
             },
             new RealEstate
             {
