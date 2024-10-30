@@ -1,4 +1,7 @@
-﻿namespace RealEstateAgency.Domain;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace RealEstateAgency.Domain;
 
 /// <summary>
 /// заявка клиента
@@ -8,6 +11,8 @@ public class Order
     /// <summary>
     /// идентификатор заявки
     /// </summary>
+    /// 
+    [Key]
     public int Id { get; set; }
 
     /// <summary>
@@ -28,7 +33,11 @@ public class Order
     /// <summary>
     /// объект недвижимости
     /// </summary>
-    public required RealEstate Item { get; set; }
+
+    [ForeignKey("RealEstateId")]
+    public required RealEstate RealEstate { get; set; }
+    public int RealEstateId { get; set; }
+
 
     /// <summary>
     /// тип заявки
@@ -40,4 +49,6 @@ public class Order
     }
 
     public required Client Client { get; set; }
+    public int ClientId { get; set; }
+
 }

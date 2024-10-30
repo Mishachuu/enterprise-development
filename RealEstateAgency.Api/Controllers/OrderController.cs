@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 [ApiController]
 public class OrdersController(OrderService orderService) : ControllerBase
 {
-    private readonly OrderService _orderService = orderService;
-
     /// <summary>
     /// получить список всех заказов
     /// </summary>
@@ -19,7 +17,7 @@ public class OrdersController(OrderService orderService) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<OrderDto>>> GetOrders()
     {
-        var orders = await _orderService.GetAllOrders();
+        var orders = await orderService.GetAllOrders();
         return Ok(orders);
     }
 
@@ -31,7 +29,7 @@ public class OrdersController(OrderService orderService) : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<OrderDto>> GetOrder(int id)
     {
-        var orders = await _orderService.GetOrdersByPredicate(o => o.Id == id);
+        var orders = await orderService.GetOrdersByPredicate(o => o.Id == id);
         if (orders == null || orders.Count == 0)
         {
             return NotFound();
@@ -53,7 +51,7 @@ public class OrdersController(OrderService orderService) : ControllerBase
             return BadRequest(ModelState);
         }
 
-        await _orderService.AddOrder(orderDto);
+        await orderService.AddOrder(orderDto);
         return Ok();
     }
 
@@ -70,7 +68,7 @@ public class OrdersController(OrderService orderService) : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        await _orderService.UpdateOrder(id, orderDto);
+        await orderService.UpdateOrder(id, orderDto);
         return NoContent();
     }
 
@@ -82,13 +80,13 @@ public class OrdersController(OrderService orderService) : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<ActionResult> DeleteOrder(int id)
     {
-        var orders = await _orderService.GetOrdersByPredicate(o => o.Id == id);
+        var orders = await orderService.GetOrdersByPredicate(o => o.Id == id);
         if (orders == null || orders.Count == 0)
         {
             return NotFound();
         }
 
-        await _orderService.DeleteOrder(id);
+        await orderService.DeleteOrder(id);
         return NoContent();
     }
 }

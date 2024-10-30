@@ -1,4 +1,6 @@
-﻿namespace RealEstateAgency.Domain;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RealEstateAgency.Domain;
 
 /// <summary>
 /// объект недвижимости
@@ -8,6 +10,7 @@ public class RealEstate
     /// <summary>
     /// идентификатор объекта
     /// </summary>
+    [Key]
     public int Id { get; set; }
     public enum PropertyType
     {
@@ -34,4 +37,6 @@ public class RealEstate
     /// количество комнат
     /// </summary>
     public int NumberOfRooms { get; set; }
+
+    public required List<Order> Orders { get; set; }
 }

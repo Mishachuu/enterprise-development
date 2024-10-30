@@ -2,6 +2,8 @@
 using RealEstateAgency.Api.DTO;
 using RealEstateAgency.Domain;
 using RealEstateAgency.Domain.Interface;
+using System.Linq.Expressions;
+
 
 namespace RealEstateAgency.Api.Services;
 
@@ -13,7 +15,7 @@ public class RealEstateService(IRepository<RealEstate, int> realEstateRepository
         return mapper.Map<List<RealEstateDto>>(realEstates);
     }
 
-    public async Task<List<RealEstateDto>> GetRealEstatesByPredicate(Func<RealEstate, bool> predicate)
+    public async Task<List<RealEstateDto>> GetRealEstatesByPredicate(Expression<Func<RealEstate, bool>> predicate)
     {
         var realEstates = await realEstateRepository.GetAsList(predicate);
         return mapper.Map<List<RealEstateDto>>(realEstates);

@@ -1,9 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using RealEstateAgency.Api;
 using RealEstateAgency.Api.Services;
 using RealEstateAgency.Domain;
 using RealEstateAgency.Domain.Interface;
-using RealEstateAgency.Domain.Repository.Mock;
+using RealEstateAgency.Domain.Repository;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,16 +13,18 @@ builder.Services.AddControllers();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
-builder.Services.AddTransient<IRepository<Client, int>, ClientRepositoryMock>();
-builder.Services.AddTransient<IRepository<Order, int>, OrderRepository>();
-builder.Services.AddTransient<IRepository<RealEstate, int>, RealEstateRepository>();
-
+builder.Services.AddScoped<IRepository<Client, int>, Repository<Client, int>>();
+builder.Services.AddScoped<IRepository<Order, int>, Repository<Order, int>>();
+builder.Services.AddScoped<IRepository<RealEstate, int>, Repository<RealEstate, int>>();
 
 builder.Services.AddTransient<ClientService>();
 builder.Services.AddTransient<OrderService>();
 builder.Services.AddTransient<RealEstateService>();
 builder.Services.AddTransient<AnalyticsService>();
 
+builder.Services.AddDbContext<RealEstateAgencyContext>(options =>
+    options.UseMySql(builder.Configuration.GetConnectionString("Postgre"),
+        new MySqlServerVersion(new Version(8, 0, 23))));
 
 builder.Services.AddSwaggerGen(c =>
 {

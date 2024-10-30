@@ -1,4 +1,6 @@
-﻿namespace RealEstateAgency.Domain;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RealEstateAgency.Domain;
 
 /// <summary>
 /// Клиент агентства недвижимости
@@ -8,7 +10,8 @@ public class Client
     /// <summary>
     /// идентификатор клиента
     /// </summary>
-    public int ClientId { get; set; }
+    [Key]
+    public int Id { get; set; }
 
     /// <summary>
     /// фио клиента
@@ -34,4 +37,6 @@ public class Client
     /// почта
     /// </summary>
     public string? Email { get; set; }
+
+    public required List<Order> Orders { get; set; }
 }

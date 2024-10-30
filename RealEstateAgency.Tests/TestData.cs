@@ -60,7 +60,7 @@ public static class TestData
         [
             new Client
             {
-                ClientId = 1,
+                Id = 1,
                 FirstAndLastName = "Chukarev Michail",
                 Pasport = "1234 567890",
                 NumberPhone = "+7 123 456 7890",
@@ -69,7 +69,7 @@ public static class TestData
             },
             new Client
             {
-                ClientId = 2,
+                Id = 2,
                 FirstAndLastName = "Stepanov Dima",
                 Pasport = "4321 987654",
                 NumberPhone = "+7 987 654 3210",
@@ -78,7 +78,7 @@ public static class TestData
             },
             new Client
             {
-                ClientId = 3,
+                Id = 3,
                 FirstAndLastName = "Ivanov Ivan",
                 Pasport = "3456 789012",
                 NumberPhone = "+7 654 321 0987",
@@ -87,7 +87,7 @@ public static class TestData
             },
             new Client
             {
-                ClientId = 4,
+                Id = 4,
                 FirstAndLastName = "Petrov Petr",
                 Pasport = "6789 012345",
                 NumberPhone = "+7 321 654 7890",
@@ -104,7 +104,7 @@ public static class TestData
                 Time = DateTime.Now.AddMonths(-2),
                 Type = Order.PurchaseOrSale.Purchase,
                 Price = 950000,
-                Item = RealEstates[0],
+                RealEstate = RealEstates[0],
                 Client = Clients[0]
             },
             new Order
@@ -113,7 +113,7 @@ public static class TestData
                 Time = DateTime.Now.AddMonths(-1),
                 Type = Order.PurchaseOrSale.Sale,
                 Price = 1200000,
-                Item = RealEstates[1],
+                RealEstate = RealEstates[1],
                 Client = Clients[0]
             },
             new Order
@@ -122,7 +122,7 @@ public static class TestData
                 Time = DateTime.Now.AddMonths(-4),
                 Type = Order.PurchaseOrSale.Sale,
                 Price = 950000,
-                Item = RealEstates[2],
+                RealEstate = RealEstates[2],
                 Client = Clients[1]
             },
             new Order
@@ -131,7 +131,7 @@ public static class TestData
                 Time = DateTime.Now.AddMonths(-3),
                 Type = Order.PurchaseOrSale.Purchase,
                 Price = 500000,
-                Item = RealEstates[3],
+                RealEstate = RealEstates[3],
                 Client = Clients[2]
             },
             new Order
@@ -140,7 +140,7 @@ public static class TestData
                 Time = DateTime.Now.AddMonths(-5),
                 Type = Order.PurchaseOrSale.Sale,
                 Price = 700000,
-                Item = RealEstates[4],
+                RealEstate = RealEstates[4],
                 Client = Clients[3]
             },
             new Order
@@ -149,7 +149,7 @@ public static class TestData
                 Time = DateTime.Now.AddMonths(-2),
                 Type = Order.PurchaseOrSale.Purchase,
                 Price = 850000,
-                Item = RealEstates[5],
+                RealEstate = RealEstates[5],
                 Client = Clients[3]
             }
         ];

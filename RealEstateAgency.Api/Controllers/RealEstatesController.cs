@@ -8,8 +8,6 @@ using RealEstateAgency.Api.Services;
 [ApiController]
 public class RealEstatesController(RealEstateService realEstateService) : ControllerBase
 {
-    private readonly RealEstateService _realEstateService = realEstateService;
-
     /// <summary>
     /// получить список всех объектов недвижимости
     /// </summary>
@@ -17,7 +15,7 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
     [HttpGet]
     public async Task<ActionResult<List<RealEstateDto>>> GetRealEstates()
     {
-        var realEstates = await _realEstateService.GetAllRealEstates();
+        var realEstates = await realEstateService.GetAllRealEstates();
         return Ok(realEstates);
     }
 
@@ -29,7 +27,7 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
     [HttpGet("{id}")]
     public async Task<ActionResult<RealEstateDto>> GetRealEstate(int id)
     {
-        var realEstates = await _realEstateService.GetRealEstatesByPredicate(r => r.Id == id);
+        var realEstates = await realEstateService.GetRealEstatesByPredicate(r => r.Id == id);
         if (realEstates == null || realEstates.Count == 0)
         {
             return NotFound($"Объект недвижимости с идентификатором {id} не найден.");
@@ -51,7 +49,7 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
             return BadRequest(ModelState);
         }
 
-        await _realEstateService.AddRealEstate(realEstateDto);
+        await realEstateService.AddRealEstate(realEstateDto);
         return Ok();
     }
 
@@ -69,13 +67,13 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
             return BadRequest(ModelState);
         }
 
-        var realEstates = await _realEstateService.GetRealEstatesByPredicate(r => r.Id == id);
+        var realEstates = await realEstateService.GetRealEstatesByPredicate(r => r.Id == id);
         if (realEstates == null || realEstates.Count == 0)
         {
             return NotFound($"Объект недвижимости с идентификатором {id} не найден.");
         }
 
-        await _realEstateService.UpdateRealEstate(id, realEstateDto);
+        await realEstateService.UpdateRealEstate(id, realEstateDto);
         return NoContent();
     }
 
@@ -87,12 +85,12 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteRealEstate(int id)
     {
-        var realEstates = await _realEstateService.GetRealEstatesByPredicate(r => r.Id == id);
+        var realEstates = await realEstateService.GetRealEstatesByPredicate(r => r.Id == id);
         if (realEstates == null || realEstates.Count == 0)
         {
             return NotFound($"Объект недвижимости с идентификатором {id} не найден.");
         }
-        await _realEstateService.DeleteRealEstate(id);
+        await realEstateService.DeleteRealEstate(id);
         return NoContent();
     }
 }

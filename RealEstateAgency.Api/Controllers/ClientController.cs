@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 [ApiController]
 public class ClientsController(ClientService clientService) : ControllerBase
 {
-    private readonly ClientService _clientService = clientService;
-
     /// <summary>
     /// получить список всех клиентов
     /// </summary>
@@ -19,7 +17,7 @@ public class ClientsController(ClientService clientService) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<ClientDto>>> GetClients()
     {
-        var clients = await _clientService.GetAllClients();
+        var clients = await clientService.GetAllClients();
         return Ok(clients);
     }
 
@@ -31,7 +29,7 @@ public class ClientsController(ClientService clientService) : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ClientDto>> GetClient(int id)
     {
-        var clients = await _clientService.GetClientsByPredicate(c => c.ClientId == id);
+        var clients = await clientService.GetClientsByPredicate(c => c.Id == id);
         if (clients == null || clients.Count == 0)
         {
             return NotFound();
@@ -53,7 +51,7 @@ public class ClientsController(ClientService clientService) : ControllerBase
             return BadRequest(ModelState);
         }
 
-        await _clientService.AddClient(clientDto);
+        await clientService.AddClient(clientDto);
         return Ok();
     }
 
@@ -70,7 +68,7 @@ public class ClientsController(ClientService clientService) : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        await _clientService.UpdateClient(id, clientDto);
+        await clientService.UpdateClient(id, clientDto);
         return NoContent();
     }
 
@@ -82,13 +80,13 @@ public class ClientsController(ClientService clientService) : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<ActionResult> DeleteClient(int id)
     {
-        var clients = await _clientService.GetClientsByPredicate(c => c.ClientId == id);
+        var clients = await clientService.GetClientsByPredicate(c => c.Id == id);
         if (clients == null || clients.Count == 0)
         {
             return NotFound();
         }
 
-        await _clientService.DeleteClient(id);
+        await clientService.DeleteClient(id);
         return NoContent();
     }
 }

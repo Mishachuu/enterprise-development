@@ -13,7 +13,7 @@ public class RealEstateAgencyQueryTests
         var realEstateType = RealEstate.PropertyType.Residential;
 
         var clients = _testClients
-            .Where(c => _testOrders.Any(o => o.Client == c && o.Type == Order.PurchaseOrSale.Purchase && o.Item.Type == realEstateType))
+            .Where(c => _testOrders.Any(o => o.Client == c && o.Type == Order.PurchaseOrSale.Purchase && o.RealEstate.Type == realEstateType))
             .OrderBy(c => c.FirstAndLastName)
             .ToList();
 
@@ -40,12 +40,12 @@ public class RealEstateAgencyQueryTests
     public void GetSellersForBuyerOrderShouldReturnSellersWithMatchingRealEstate()
     {
         var buyerOrder = _testOrders
-            .First(o => o.Type == Order.PurchaseOrSale.Purchase && o.Item.Type == RealEstate.PropertyType.Residential);
+            .First(o => o.Type == Order.PurchaseOrSale.Purchase && o.RealEstate.Type == RealEstate.PropertyType.Residential);
 
         var sellers = _testClients
-            .Join(_testOrders.Where(o => o.Type == Order.PurchaseOrSale.Sale && o.Item.Type == buyerOrder.Item.Type && o.Price == buyerOrder.Price),
-                  seller => seller.ClientId,
-                  saleOrder => saleOrder.Client.ClientId,
+            .Join(_testOrders.Where(o => o.Type == Order.PurchaseOrSale.Sale && o.RealEstate.Type == buyerOrder.RealEstate.Type && o.Price == buyerOrder.Price),
+                  seller => seller.Id,
+                  saleOrder => saleOrder.Client.Id,
                   (seller, saleOrder) => seller)
             .Distinct()
             .ToList();
@@ -58,7 +58,7 @@ public class RealEstateAgencyQueryTests
     public void GetOrderCountByRealEstateTypeShouldReturnCorrectCounts()
     {
         var orderCountByType = _testOrders
-            .GroupBy(o => o.Item.Type)
+            .GroupBy(o => o.RealEstate.Type)
             .Select(g => new
             {
                 RealEstateType = g.Key,

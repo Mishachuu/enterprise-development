@@ -1,4 +1,5 @@
 ﻿using RealEstateAgency.Domain.Interface;
+using System.Linq.Expressions;
 
 namespace RealEstateAgency.Domain.Repository.Mock;
 
@@ -12,20 +13,20 @@ public class ClientRepository : IRepository<Client, int>
         return await Task.FromResult(_clients);
     }
 
-    public async Task<List<Client>> GetAsList(Func<Client, bool> predicate)
+    public async Task<List<Client>> GetAsList(Expression<Func<Client, bool>> predicate)
     {
-        return await Task.FromResult(_clients.Where(predicate).ToList());
+        return await Task.FromResult(_clients.AsQueryable().Where(predicate).ToList());
     }
 
     public async Task Add(Client newRecord)
     {
-        newRecord.ClientId = _currentId++;
+        newRecord.Id = _currentId++;
         await Task.Run(() => _clients.Add(newRecord));
     }
 
     public async Task Delete(int key)
     {
-        var client = _clients.FirstOrDefault(c => c.ClientId == key);
+        var client = _clients.FirstOrDefault(c => c.Id == key);
         if (client != null)
         {
             await Task.Run(() => _clients.Remove(client));
@@ -34,7 +35,7 @@ public class ClientRepository : IRepository<Client, int>
 
     public async Task Update(Client newValue)
     {
-        var client = _clients.FirstOrDefault(c => c.ClientId == newValue.ClientId);
+        var client = _clients.FirstOrDefault(c => c.Id == newValue.Id);
         if (client != null)
         {
             await Task.Run(() =>
