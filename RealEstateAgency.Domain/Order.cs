@@ -36,9 +36,6 @@ public class Order
 
     [ForeignKey("RealEstateId")]
     public required RealEstate RealEstate { get; set; }
-    public int RealEstateId { get; set; }
-
-
     /// <summary>
     /// тип заявки
     /// </summary>
@@ -47,8 +44,5 @@ public class Order
         Purchase,
         Sale
     }
-
     public required Client Client { get; set; }
-    public int ClientId { get; set; }
-
 }

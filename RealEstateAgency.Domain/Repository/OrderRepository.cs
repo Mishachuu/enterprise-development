@@ -1,52 +1,41 @@
-﻿using RealEstateAgency.Domain.Interface;
+﻿using Microsoft.EntityFrameworkCore;
+using RealEstateAgency.Data;
+using RealEstateAgency.Domain.Interface;
 using System.Linq.Expressions;
 
-namespace RealEstateAgency.Domain.Repository.Mock;
+namespace RealEstateAgency.Domain.Repository;
 
-public class OrderRepository : IRepository<Order, int>
+public class OrderRepository(RealEstateAgencyContext context) : IRepository<Order, int>
 {
-    private static readonly List<Order> _orders = [];
-    private static int _currentId;
-
-
     public async Task<List<Order>> GetAsList()
     {
-        return await Task.FromResult(_orders);
+        return await context.Orders.ToListAsync();
     }
 
     public async Task<List<Order>> GetAsList(Expression<Func<Order, bool>> predicate)
     {
-        return await Task.FromResult(_orders.AsQueryable().Where(predicate).ToList());
-
+        return await context.Orders.Where(predicate).ToListAsync();
     }
-
 
     public async Task Add(Order newRecord)
     {
-        newRecord.Id = _currentId++;
-        await Task.Run(() => _orders.Add(newRecord));
+        await context.Orders.AddAsync(newRecord);
+        await context.SaveChangesAsync();
     }
 
     public async Task Delete(int key)
     {
-        var order = _orders.FirstOrDefault(o => o.Id == key);
+        var order = await context.Orders.FindAsync(key);
         if (order != null)
         {
-            await Task.Run(() => _orders.Remove(order));
+            context.Orders.Remove(order);
+            await context.SaveChangesAsync();
         }
     }
 
     public async Task Update(Order newValue)
     {
-        var order = _orders.FirstOrDefault(o => o.Id == newValue.Id);
-        if (order != null)
-        {
-            await Task.Run(() =>
-            {
-                order.Time = newValue.Time;
-                order.Id = newValue.Id;
-                order.Price = newValue.Price;
-            });
-        }
+        context.Orders.Update(newValue);
+        await context.SaveChangesAsync();
     }
 }

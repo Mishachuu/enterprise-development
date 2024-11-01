@@ -1,51 +1,41 @@
-﻿using RealEstateAgency.Domain.Interface;
+﻿using Microsoft.EntityFrameworkCore;
+using RealEstateAgency.Data;
+using RealEstateAgency.Domain.Interface;
 using System.Linq.Expressions;
 
-namespace RealEstateAgency.Domain.Repository.Mock
+namespace RealEstateAgency.Domain.Repository;
+
+public class RealEstateRepository(RealEstateAgencyContext context) : IRepository<RealEstate, int>
 {
-    public class RealEstateRepository : IRepository<RealEstate, int>
+    public async Task<List<RealEstate>> GetAsList()
     {
-        private static readonly List<RealEstate> _realEstates = [];
-        private static int _currentId;
+        return await context.RealEstates.ToListAsync();
+    }
 
-        public async Task<List<RealEstate>> GetAsList()
-        {
-            return await Task.FromResult(_realEstates);
-        }
+    public async Task<List<RealEstate>> GetAsList(Expression<Func<RealEstate, bool>> predicate)
+    {
+        return await context.RealEstates.Where(predicate).ToListAsync();
+    }
 
-        public async Task<List<RealEstate>> GetAsList(Expression<Func<RealEstate, bool>> predicate)
-        {
-            return await Task.FromResult(_realEstates.AsQueryable().Where(predicate).ToList());
-        }
+    public async Task Add(RealEstate newRecord)
+    {
+        await context.RealEstates.AddAsync(newRecord);
+        await context.SaveChangesAsync();
+    }
 
-        public async Task Add(RealEstate newRecord)
+    public async Task Delete(int key)
+    {
+        var realEstate = await context.RealEstates.FindAsync(key);
+        if (realEstate != null)
         {
-            newRecord.Id = _currentId++;
-            await Task.Run(() => _realEstates.Add(newRecord));
+            context.RealEstates.Remove(realEstate);
+            await context.SaveChangesAsync();
         }
+    }
 
-        public async Task Delete(int key)
-        {
-            var realEstate = _realEstates.FirstOrDefault(r => r.Id == key);
-            if (realEstate != null)
-            {
-                await Task.Run(() => _realEstates.Remove(realEstate));
-            }
-        }
-
-        public async Task Update(RealEstate newValue)
-        {
-            var realEstate = _realEstates.FirstOrDefault(r => r.Id == newValue.Id);
-            if (realEstate != null)
-            {
-                await Task.Run(() =>
-                {
-                    realEstate.Square = newValue.Square;
-                    realEstate.NumberOfRooms = newValue.NumberOfRooms;
-                    realEstate.Type = newValue.Type;
-                    realEstate.Address = newValue.Address;
-                });
-            }
-        }
+    public async Task Update(RealEstate newValue)
+    {
+        context.RealEstates.Update(newValue);
+        await context.SaveChangesAsync();
     }
 }
