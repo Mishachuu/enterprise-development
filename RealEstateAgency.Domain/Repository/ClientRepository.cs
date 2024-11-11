@@ -35,7 +35,17 @@ public class ClientRepository(RealEstateAgencyContext context) : IRepository<Cli
 
     public async Task Update(Client newValue)
     {
-        context.Clients.Update(newValue);
-        await context.SaveChangesAsync();
+        var client = await context.Clients.FindAsync(newValue.Id);
+        if (client != null)
+        {
+            client.Email = newValue.Email;
+            client.Address = newValue.Address;
+            client.NumberPhone = newValue.NumberPhone;
+            client.FirstAndLastName = newValue.FirstAndLastName;
+            client.Pasport = newValue.Pasport;
+
+            context.Clients.Update(client);
+            await context.SaveChangesAsync();
+        }
     }
 }

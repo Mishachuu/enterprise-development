@@ -10,8 +10,19 @@ namespace RealEstateAgency.Api.Controllers;
 public class AnalyticsController(AnalyticsService analyticsService) : ControllerBase
 {
     /// <summary>
-    /// вывести сведения о всех клиентах, ищущих недвижимость заданного типа, упорядочить по ФИО.
+    /// Вывести сведения о всех клиентах, ищущих недвижимость заданного типа, упорядоченные по ФИО.
     /// </summary>
+    /// <param name="type">
+    /// Значения для параметра <c>type</c> могут быть следующими:
+    /// <list type="bullet">
+    /// <item>
+    /// <term> Residential</term>
+    /// </item>
+    /// <item>
+    /// <term> Uninhabitable</term>
+    /// </item>
+    /// </list>
+    /// </param>
     [HttpGet("clients-by-realestate-type")]
     public async Task<ActionResult<List<ClientDto>>> GetClientsByRealEstateType(string type)
     {
@@ -27,7 +38,7 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
         }
         catch (Exception)
         {
-            return StatusCode(500, "Внутренняя ошибка сервера.");
+            return StatusCode(500, "Ошибка при выполнении запроса.");
         }
     }
 
@@ -37,8 +48,20 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
     [HttpGet("sellers-by-period")]
     public async Task<ActionResult<List<ClientDto>>> GetSellersByPeriod(DateTime startDate, DateTime endDate)
     {
-        var result = await analyticsService.GetSellersByPeriod(startDate, endDate);
-        return Ok(result);
+        if (startDate > endDate)
+        {
+            return BadRequest("Начальная дата не может быть позже конечной.");
+        }
+        try
+        {
+            var result = await analyticsService.GetSellersByPeriod(startDate, endDate);
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "Ошибка при выполнении запроса.");
+
+        }
     }
 
     /// <summary>
@@ -47,8 +70,21 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
     [HttpGet("matching-sellers-for-buyer/{buyerOrderId}")]
     public async Task<ActionResult<SellerRealEstateDto>> GetSellersForBuyerOrder(int buyerOrderId)
     {
-        var result = await analyticsService.GetSellersForBuyerOrder(buyerOrderId);
-        return Ok(result);
+        try
+        {
+            var result = await analyticsService.GetSellersForBuyerOrder(buyerOrderId);
+            return Ok(result);
+        }
+        catch (ArgumentException)
+        {
+            return NotFound("Заказ покупателя не найден.");
+
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "Ошибка при выполнении запроса.");
+
+        }
     }
 
     /// <summary>
@@ -57,8 +93,15 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
     [HttpGet("order-count-by-type")]
     public async Task<ActionResult<List<RealEstateOrderCountDto>>> GetOrderCountByRealEstateType()
     {
-        var result = await analyticsService.GetOrderCountByRealEstateType();
-        return Ok(result);
+        try
+        {
+            var result = await analyticsService.GetOrderCountByRealEstateType();
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "Ошибка при выполнении запроса.");
+        }
     }
 
     /// <summary>
@@ -67,8 +110,15 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
     [HttpGet("top-purchasers")]
     public async Task<ActionResult<List<ClientOrderCountDto>>> GetTop5Purchasers()
     {
-        var result = await analyticsService.GetTop5Purchasers();
-        return Ok(result);
+        try
+        {
+            var result = await analyticsService.GetTop5Purchasers();
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "Ошибка при выполнении запроса.");
+        }
     }
 
     /// <summary>
@@ -77,8 +127,16 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
     [HttpGet("top-sellers")]
     public async Task<ActionResult<List<ClientOrderCountDto>>> GetTop5Sellers()
     {
-        var result = await analyticsService.GetTop5Sellers();
-        return Ok(result);
+        try
+        {
+            var result = await analyticsService.GetTop5Sellers();
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "Ошибка при выполнении запроса.");
+
+        }
     }
 
     /// <summary>
@@ -87,7 +145,14 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
     [HttpGet("min-price-orders")]
     public async Task<ActionResult<List<ClientOrderPriceDto>>> GetClientsWithMinOrderPrice()
     {
-        var result = await analyticsService.GetClientsWithMinOrderPrice();
-        return Ok(result);
+        try
+        {
+            var result = await analyticsService.GetClientsWithMinOrderPrice();
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "Ошибка при выполнении запроса.");
+        }
     }
 }

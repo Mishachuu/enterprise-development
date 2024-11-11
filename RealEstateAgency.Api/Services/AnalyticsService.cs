@@ -9,7 +9,7 @@ public class AnalyticsService(IRepository<Order, int> orderRepository, IReposito
 {
     public async Task<List<ClientDto>> GetClientsByPropertyTypeAsync(RealEstate.PropertyType propertyType)
     {
-        var orders = await orderRepository.GetAsList(o => o != null && o.Type == Order.PurchaseOrSale.Purchase && o.RealEstate.Type == propertyType);
+        var orders = await orderRepository.GetAsList(o => o != null && o.RealEstate != null && o.RealEstate.Type == propertyType && o.Client != null);
         var clientIds = orders.Select(o => o.Client.Id).Distinct().ToList();
 
         var clients = (await clientRepository.GetAsList(c => clientIds.Contains(c.Id))).OrderBy(c => c.FirstAndLastName);
@@ -20,7 +20,7 @@ public class AnalyticsService(IRepository<Order, int> orderRepository, IReposito
 
     public async Task<List<ClientDto>> GetSellersByPeriod(DateTime startDate, DateTime endDate)
     {
-        var orders = await orderRepository.GetAsList(o => o.Type == Order.PurchaseOrSale.Sale && o.Time >= startDate && o.Time <= endDate);
+        var orders = await orderRepository.GetAsList(o => o.Type == Order.PurchaseOrSale.Sale && o.Time >= startDate && o.Time <= endDate && o.Client != null);
         var clientIds = orders.Select(o => o.Client.Id).Distinct().ToList();
 
         var clients = await clientRepository.GetAsList(c => clientIds.Contains(c.Id));
@@ -30,8 +30,9 @@ public class AnalyticsService(IRepository<Order, int> orderRepository, IReposito
 
     public async Task<SellerRealEstateDto> GetSellersForBuyerOrder(int buyerOrderId)
     {
-        var buyerOrder = (await orderRepository.GetAsList(o => o.Id == buyerOrderId && o.Type == Order.PurchaseOrSale.Purchase))
-                         .FirstOrDefault() ?? throw new ArgumentException("Заказ покупателя не найден.");
+        var buyerOrders = ((await orderRepository.GetAsList()));
+        var buyerOrder = buyerOrders
+    .FirstOrDefault(o => o.Client.Id == buyerOrderId && o.RealEstate != null) ?? throw new ArgumentException("Заказ покупателя не найден.");
 
         var realEstate = buyerOrder.RealEstate;
 
@@ -72,7 +73,7 @@ public class AnalyticsService(IRepository<Order, int> orderRepository, IReposito
         var orders = await orderRepository.GetAsList();
 
         var topPurchasers = orders
-            .Where(o => o.Type == Order.PurchaseOrSale.Purchase)
+            .Where(o => o.Type == Order.PurchaseOrSale.Purchase && o.Client != null)
             .GroupBy(o => o.Client.Id)
             .OrderByDescending(g => g.Count())
             .Take(5)
@@ -93,7 +94,7 @@ public class AnalyticsService(IRepository<Order, int> orderRepository, IReposito
         var orders = await orderRepository.GetAsList();
 
         var topSellers = orders
-            .Where(o => o.Type == Order.PurchaseOrSale.Sale)
+            .Where(o => o.Type == Order.PurchaseOrSale.Sale && o.Client != null)
             .GroupBy(o => o.Client.Id)
             .OrderByDescending(g => g.Count())
             .Take(5)
@@ -116,7 +117,7 @@ public class AnalyticsService(IRepository<Order, int> orderRepository, IReposito
 
         var minPrice = orders.Min(o => o.Price);
 
-        var minPriceOrders = orders.Where(o => o.Price == minPrice).ToList();
+        var minPriceOrders = orders.Where(o => o.Price == minPrice && o.Client != null).ToList();
         var clientIds = minPriceOrders.Select(o => o.Client.Id).Distinct().ToList();
         var clients = await clientRepository.GetAsList(c => clientIds.Contains(c.Id));
 

@@ -12,7 +12,7 @@ using RealEstateAgency.Data;
 namespace RealEstateAgency.Domain.Migrations
 {
     [DbContext(typeof(RealEstateAgencyContext))]
-    [Migration("20241101111747_InitialCreate")]
+    [Migration("20241110141214_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -119,13 +119,13 @@ namespace RealEstateAgency.Domain.Migrations
                     b.HasOne("RealEstateAgency.Domain.Client", "Client")
                         .WithMany()
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RealEstateAgency.Domain.RealEstate", "RealEstate")
                         .WithMany()
                         .HasForeignKey("RealEstateId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Client");

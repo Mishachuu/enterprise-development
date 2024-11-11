@@ -35,7 +35,16 @@ public class RealEstateRepository(RealEstateAgencyContext context) : IRepository
 
     public async Task Update(RealEstate newValue)
     {
-        context.RealEstates.Update(newValue);
-        await context.SaveChangesAsync();
+        var realEstate = await context.RealEstates.FindAsync(newValue.Id);
+        if (realEstate != null)
+        {
+            realEstate.Square = newValue.Square;
+            realEstate.NumberOfRooms = newValue.NumberOfRooms;
+            realEstate.Address = newValue.Address;
+            realEstate.Type = newValue.Type;
+
+            context.RealEstates.Update(realEstate);
+            await context.SaveChangesAsync();
+        }
     }
 }

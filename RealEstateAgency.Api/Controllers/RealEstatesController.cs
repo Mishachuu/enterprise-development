@@ -37,16 +37,26 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
     }
 
     /// <summary>
-    /// добавить новый объект недвижимости
+    /// Добавить новый объект недвижимости.
     /// </summary>
-    /// <param name="realEstateDto">объект недвижимости в виде RealEstateDto</param>
-    /// <returns>созданный объект недвижимости</returns>
+    /// <param name="realEstateDto">
+    /// Значения для свойства <c>PropertyType</c> могут быть следующими:
+    /// <list type="bullet">
+    /// <item>
+    /// <term> Residential</term>
+    /// </item>
+    /// <item>
+    /// <term> Uninhabitable</term>
+    /// </item>
+    /// </list>
+    /// </param>
+    /// <returns> Созданный объект недвижимости</returns>
     [HttpPost]
     public async Task<ActionResult> AddRealEstate([FromBody] RealEstateDto realEstateDto)
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest("Данные не корректны.");
         }
 
         await realEstateService.AddRealEstate(realEstateDto);
@@ -64,7 +74,7 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest("Данные не корректны.");
         }
 
         var realEstates = await realEstateService.GetRealEstatesByPredicate(r => r.Id == id);
@@ -85,12 +95,19 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteRealEstate(int id)
     {
-        var realEstates = await realEstateService.GetRealEstatesByPredicate(r => r.Id == id);
-        if (realEstates == null || realEstates.Count == 0)
+        try
         {
-            return NotFound($"Объект недвижимости с идентификатором {id} не найден.");
+            var realEstates = await realEstateService.GetRealEstatesByPredicate(r => r.Id == id);
+            if (realEstates == null || realEstates.Count == 0)
+            {
+                return NotFound($"Объект недвижимости с идентификатором {id} не найден.");
+            }
+            await realEstateService.DeleteRealEstate(id);
+            return NoContent();
         }
-        await realEstateService.DeleteRealEstate(id);
-        return NoContent();
+        catch
+        {
+            return StatusCode(500, "Ошибка при выполнении запроса.");
+        }
     }
 }

@@ -32,25 +32,35 @@ public class OrdersController(OrderService orderService) : ControllerBase
         var orders = await orderService.GetOrdersByPredicate(o => o.Id == id);
         if (orders == null || orders.Count == 0)
         {
-            return NotFound();
+            return NotFound("Заказ не найден");
         }
-
         return Ok(orders.First());
     }
 
     /// <summary>
-    /// добавить новый заказ
+    /// Добавить новый заказ.
     /// </summary>
-    /// <param name="orderDto">объект заказа в виде OrderDto</param>
-    /// <returns>результат выполнения операции</returns>
+    /// <param name="orderDto">
+    /// Объект заказа в виде OrderDto. 
+    /// Значения для свойства <c>Type</c> могут быть следующими:
+    /// <list type="bullet">
+    /// <item>
+    /// <term> Purchase</term>
+    /// </item>
+    /// <item>
+    /// <term> Sale</term>
+    /// </item>
+    /// </list>
+    /// </param>
+    /// <returns>Результат выполнения операции</returns>
+
     [HttpPost]
     public async Task<ActionResult> AddOrder([FromBody] OrderDto orderDto)
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest("Данные не корректны.");
         }
-
         await orderService.AddOrder(orderDto);
         return Ok();
     }
@@ -66,7 +76,7 @@ public class OrdersController(OrderService orderService) : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest("Данные не корректны.");
         }
         await orderService.UpdateOrder(id, orderDto);
         return NoContent();
@@ -80,13 +90,20 @@ public class OrdersController(OrderService orderService) : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<ActionResult> DeleteOrder(int id)
     {
-        var orders = await orderService.GetOrdersByPredicate(o => o.Id == id);
-        if (orders == null || orders.Count == 0)
+        try
         {
-            return NotFound();
-        }
+            var orders = await orderService.GetOrdersByPredicate(o => o.Id == id);
+            if (orders == null || orders.Count == 0)
+            {
+                return NotFound("Заказ не найден.");
+            }
 
-        await orderService.DeleteOrder(id);
-        return NoContent();
+            await orderService.DeleteOrder(id);
+            return NoContent();
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "Ошибка при выполнении запроса.");
+        }
     }
 }

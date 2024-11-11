@@ -14,11 +14,11 @@ public class RealEstateAgencyContext(DbContextOptions<RealEstateAgencyContext> o
         modelBuilder.Entity<Order>()
             .HasOne(o => o.Client)
             .WithMany()
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Order>()
             .HasOne(o => o.RealEstate)
             .WithMany()
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

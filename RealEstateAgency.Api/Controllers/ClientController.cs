@@ -32,7 +32,7 @@ public class ClientsController(ClientService clientService) : ControllerBase
         var clients = await clientService.GetClientsByPredicate(c => c.Id == id);
         if (clients == null || clients.Count == 0)
         {
-            return NotFound();
+            return NotFound("Клиент не найден");
         }
 
         return Ok(clients.First());
@@ -48,7 +48,7 @@ public class ClientsController(ClientService clientService) : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest("Данные не корректны.");
         }
 
         await clientService.AddClient(clientDto);
@@ -66,7 +66,7 @@ public class ClientsController(ClientService clientService) : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest("Данные не корректны.");
         }
         await clientService.UpdateClient(id, clientDto);
         return NoContent();
@@ -80,13 +80,21 @@ public class ClientsController(ClientService clientService) : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<ActionResult> DeleteClient(int id)
     {
-        var clients = await clientService.GetClientsByPredicate(c => c.Id == id);
-        if (clients == null || clients.Count == 0)
+        try
         {
-            return NotFound();
-        }
+            var clients = await clientService.GetClientsByPredicate(c => c.Id == id);
+            if (clients == null || clients.Count == 0)
+            {
+                return NotFound("Клиент не найден.");
+            }
 
-        await clientService.DeleteClient(id);
-        return NoContent();
+            await clientService.DeleteClient(id);
+            return NoContent();
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "Ошибка при выполнении запроса.");
+
+        }
     }
 }

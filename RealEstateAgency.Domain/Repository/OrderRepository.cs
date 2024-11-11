@@ -9,12 +9,24 @@ public class OrderRepository(RealEstateAgencyContext context) : IRepository<Orde
 {
     public async Task<List<Order>> GetAsList()
     {
-        return await context.Orders.ToListAsync();
+        var queryWithIncludes = context.Orders
+            .Include(o => o.Client)
+            .Include(o => o.RealEstate);
+        return await queryWithIncludes.ToListAsync();
     }
 
     public async Task<List<Order>> GetAsList(Expression<Func<Order, bool>> predicate)
     {
-        return await context.Orders.Where(predicate).ToListAsync();
+        var queryWithIncludes = context.Orders
+            .Include(o => o.Client)
+            .Include(o => o.RealEstate);
+
+        var filteredQuery = queryWithIncludes.Where(predicate);
+
+        var orders = await filteredQuery.ToListAsync();
+
+
+        return orders;
     }
 
     public async Task Add(Order newRecord)
@@ -35,7 +47,16 @@ public class OrderRepository(RealEstateAgencyContext context) : IRepository<Orde
 
     public async Task Update(Order newValue)
     {
-        context.Orders.Update(newValue);
-        await context.SaveChangesAsync();
+        var order = await context.Orders.FindAsync(newValue.Id);
+        if (order != null)
+        {
+            order.Price = newValue.Price;
+            order.RealEstate = newValue.RealEstate;
+            order.Client = newValue.Client;
+            order.Time = newValue.Time;
+
+            context.Orders.Update(order);
+            await context.SaveChangesAsync();
+        }
     }
 }

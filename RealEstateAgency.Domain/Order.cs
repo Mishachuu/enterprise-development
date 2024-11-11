@@ -44,5 +44,6 @@ public class Order
         Purchase,
         Sale
     }
+    [ForeignKey("ClientId")]
     public required Client Client { get; set; }
 }
