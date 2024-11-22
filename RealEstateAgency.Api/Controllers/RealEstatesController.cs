@@ -11,9 +11,9 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
     /// <summary>
     /// получить список всех объектов недвижимости
     /// </summary>
-    /// <returns>список объектов недвижимости в виде RealEstateDto</returns>
+    /// <returns>список объектов недвижимости в виде RealEstateGetDto</returns>
     [HttpGet]
-    public async Task<ActionResult<List<RealEstateDto>>> GetRealEstates()
+    public async Task<ActionResult<List<RealEstateGetDto>>> GetRealEstates()
     {
         var realEstates = await realEstateService.GetAllRealEstates();
         return Ok(realEstates);
@@ -23,7 +23,7 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
     /// получить объект недвижимости по его идентификатору
     /// </summary>
     /// <param name="id">идентификатор объекта недвижимости</param>
-    /// <returns>объект недвижимости в виде RealEstateDto</returns>
+    /// <returns>объект недвижимости в виде RealEstateGetDto</returns>
     [HttpGet("{id}")]
     public async Task<ActionResult<RealEstateDto>> GetRealEstate(int id)
     {

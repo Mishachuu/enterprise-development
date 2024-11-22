@@ -14,10 +14,10 @@ public class OrderService(
     IMapper mapper)
 {
 
-    public async Task<List<OrderDto>> GetAllOrders()
+    public async Task<List<OrderGetDto>> GetAllOrders()
     {
         var orders = await orderRepository.GetAsList();
-        return mapper.Map<List<OrderDto>>(orders);
+        return mapper.Map<List<OrderGetDto>>(orders);
     }
 
     public async Task<List<OrderDto>> GetOrdersByPredicate(Expression<Func<Order, bool>> predicate)

@@ -2,7 +2,6 @@
 
 public class ClientDto
 {
-    public int Id { get; set; }
     public string? FirstAndLastName { get; set; }
     public string? Pasport { get; set; }
     public string? NumberPhone { get; set; }

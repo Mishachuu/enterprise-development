@@ -13,9 +13,9 @@ public class ClientsController(ClientService clientService) : ControllerBase
     /// <summary>
     /// получить список всех клиентов
     /// </summary>
-    /// <returns>список клиентов в виде ClientDto</returns>
+    /// <returns>список клиентов в виде ClientGetDto</returns>
     [HttpGet]
-    public async Task<ActionResult<List<ClientDto>>> GetClients()
+    public async Task<ActionResult<List<ClientGetDto>>> GetClients()
     {
         var clients = await clientService.GetAllClients();
         return Ok(clients);
@@ -25,9 +25,9 @@ public class ClientsController(ClientService clientService) : ControllerBase
     /// получить клиента по его идентификатору
     /// </summary>
     /// <param name="id">идентификатор клиента</param>
-    /// <returns>клиент в виде ClientDto</returns>
+    /// <returns>клиент в виде ClientGetDto</returns>
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<ClientDto>> GetClient(int id)
+    public async Task<ActionResult<ClientGetDto>> GetClient(int id)
     {
         var clients = await clientService.GetClientsByPredicate(c => c.Id == id);
         if (clients == null || clients.Count == 0)

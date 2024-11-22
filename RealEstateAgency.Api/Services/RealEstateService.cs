@@ -9,10 +9,10 @@ namespace RealEstateAgency.Api.Services;
 
 public class RealEstateService(IRepository<RealEstate, int> realEstateRepository, IMapper mapper)
 {
-    public async Task<List<RealEstateDto>> GetAllRealEstates()
+    public async Task<List<RealEstateGetDto>> GetAllRealEstates()
     {
         var realEstates = await realEstateRepository.GetAsList();
-        return mapper.Map<List<RealEstateDto>>(realEstates);
+        return mapper.Map<List<RealEstateGetDto>>(realEstates);
     }
 
     public async Task<List<RealEstateDto>> GetRealEstatesByPredicate(Expression<Func<RealEstate, bool>> predicate)

@@ -13,9 +13,9 @@ public class OrdersController(OrderService orderService) : ControllerBase
     /// <summary>
     /// получить список всех заказов
     /// </summary>
-    /// <returns>список заказов в виде OrderDto</returns>
+    /// <returns>список заказов в виде OrderGetDto</returns>
     [HttpGet]
-    public async Task<ActionResult<List<OrderDto>>> GetOrders()
+    public async Task<ActionResult<List<OrderGetDto>>> GetOrders()
     {
         var orders = await orderService.GetAllOrders();
         return Ok(orders);
@@ -25,7 +25,7 @@ public class OrdersController(OrderService orderService) : ControllerBase
     /// получить заказ по его идентификатору
     /// </summary>
     /// <param name="id">идентификатор заказа</param>
-    /// <returns>заказ в виде OrderDto</returns>
+    /// <returns>заказ в виде OrderGetDto</returns>
     [HttpGet("{id:int}")]
     public async Task<ActionResult<OrderDto>> GetOrder(int id)
     {

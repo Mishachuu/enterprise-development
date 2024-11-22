@@ -9,16 +9,16 @@ namespace RealEstateAgency.Api.Services;
 public class ClientService(IRepository<Client, int> clientRepository, IMapper mapper)
 {
 
-    public async Task<List<ClientDto>> GetAllClients()
+    public async Task<List<ClientGetDto>> GetAllClients()
     {
         var clients = await clientRepository.GetAsList();
-        return mapper.Map<List<ClientDto>>(clients);
+        return mapper.Map<List<ClientGetDto>>(clients);
     }
 
-    public async Task<List<ClientDto>> GetClientsByPredicate(Expression<Func<Client, bool>> predicate)
+    public async Task<List<ClientGetDto>> GetClientsByPredicate(Expression<Func<Client, bool>> predicate)
     {
         var clients = await clientRepository.GetAsList(predicate);
-        return mapper.Map<List<ClientDto>>(clients);
+        return mapper.Map<List<ClientGetDto>>(clients);
     }
 
     public async Task AddClient(ClientDto clientDto)
