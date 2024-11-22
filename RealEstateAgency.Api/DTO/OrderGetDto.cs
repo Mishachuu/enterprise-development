@@ -11,6 +11,6 @@ public class OrderGetDto
     public decimal Price { get; set; }
 
     [EnumDataType(typeof(PurchaseOrSale))]
-    public string? Type { get; set; }
+    public required string Type { get; set; }
     public int RealEstateId { get; set; }
 }
