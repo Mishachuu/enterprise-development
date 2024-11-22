@@ -5,6 +5,7 @@ namespace RealEstateAgency.Api.DTO;
 
 public class OrderDto
 {
+    public int Id { get; set; }
     public DateTime Time { get; set; }
     public int ClientId { get; set; }
     public decimal Price { get; set; }

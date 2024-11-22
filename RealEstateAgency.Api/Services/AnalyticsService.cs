@@ -30,18 +30,24 @@ public class AnalyticsService(IRepository<Order, int> orderRepository, IReposito
 
     public async Task<SellerRealEstateDto> GetSellersForBuyerOrder(int buyerOrderId)
     {
-        var buyerOrders = ((await orderRepository.GetAsList()));
+        var buyerOrders = await orderRepository.GetAsList();
         var buyerOrder = buyerOrders
-    .FirstOrDefault(o => o.Client.Id == buyerOrderId && o.RealEstate != null) ?? throw new ArgumentException("Заказ покупателя не найден.");
+    .FirstOrDefault(o => o.Id == buyerOrderId && o.RealEstate != null) ?? throw new ArgumentException("Заказ покупателя не найден.");
 
         var realEstate = buyerOrder.RealEstate;
 
+        var sellerOrders = await orderRepository.GetAsList(o =>
+            o.Type == Order.PurchaseOrSale.Sale &&
+            o.RealEstate.Id == realEstate.Id &&
+            o.Price == buyerOrder.Price);
+
+        var sellerClientIds = sellerOrders
+            .Select(o => o.Client.Id)
+            .Distinct()
+            .ToList();
+
         var matchingSellers = await clientRepository.GetAsList(c =>
-            orderRepository.GetAsList(o =>
-                o.Type == Order.PurchaseOrSale.Sale &&
-                o.RealEstate.Id == realEstate.Id &&
-                o.Price == buyerOrder.Price).Result.Any(o => o.Client.Id == c.Id)
-        );
+            sellerClientIds.Contains(c.Id));
 
         var result = new SellerRealEstateDto
         {
