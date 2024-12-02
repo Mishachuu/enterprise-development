@@ -15,6 +15,7 @@ public class ClientsController(ClientService clientService) : ControllerBase
     /// </summary>
     /// <returns>список клиентов в виде ClientGetDto</returns>
     [HttpGet]
+    [ProducesResponseType(200)]
     public async Task<ActionResult<List<ClientGetDto>>> GetClients()
     {
         var clients = await clientService.GetAllClients();
@@ -27,6 +28,8 @@ public class ClientsController(ClientService clientService) : ControllerBase
     /// <param name="id">идентификатор клиента</param>
     /// <returns>клиент в виде ClientGetDto</returns>
     [HttpGet("{id:int}")]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(200)]
     public async Task<ActionResult<ClientGetDto>> GetClient(int id)
     {
         var clients = await clientService.GetClientsByPredicate(c => c.Id == id);
@@ -44,6 +47,8 @@ public class ClientsController(ClientService clientService) : ControllerBase
     /// <param name="clientDto">объект клиента в виде ClientDto</param>
     /// <returns>результат выполнения операции</returns>
     [HttpPost]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(200)]
     public async Task<ActionResult> AddClient([FromBody] ClientDto clientDto)
     {
         if (!ModelState.IsValid)
@@ -62,6 +67,8 @@ public class ClientsController(ClientService clientService) : ControllerBase
     /// <param name="clientDto">объект клиента с обновленными данными</param>
     /// <returns>результат выполнения операции</returns>
     [HttpPut("{id:int}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
     public async Task<ActionResult> UpdateClient(int id, [FromBody] ClientDto clientDto)
     {
         if (!ModelState.IsValid)
@@ -78,6 +85,9 @@ public class ClientsController(ClientService clientService) : ControllerBase
     /// <param name="id">идентификатор клиента</param>
     /// <returns>результат выполнения операции</returns>
     [HttpDelete("{id:int}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(500)]
     public async Task<ActionResult> DeleteClient(int id)
     {
         try

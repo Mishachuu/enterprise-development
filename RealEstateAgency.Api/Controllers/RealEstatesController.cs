@@ -13,6 +13,7 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
     /// </summary>
     /// <returns>список объектов недвижимости в виде RealEstateGetDto</returns>
     [HttpGet]
+    [ProducesResponseType(200)]
     public async Task<ActionResult<List<RealEstateGetDto>>> GetRealEstates()
     {
         var realEstates = await realEstateService.GetAllRealEstates();
@@ -25,7 +26,9 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
     /// <param name="id">идентификатор объекта недвижимости</param>
     /// <returns>объект недвижимости в виде RealEstateGetDto</returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<RealEstateDto>> GetRealEstate(int id)
+    [ProducesResponseType(404)]
+    [ProducesResponseType(200)]
+    public async Task<ActionResult<RealEstateGetDto>> GetRealEstate(int id)
     {
         var realEstates = await realEstateService.GetRealEstatesByPredicate(r => r.Id == id);
         if (realEstates == null || realEstates.Count == 0)
@@ -52,6 +55,8 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
     /// </param>
     /// <returns> Созданный объект недвижимости</returns>
     [HttpPost]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(200)]
     public async Task<ActionResult> AddRealEstate([FromBody] RealEstateDto realEstateDto)
     {
         if (!ModelState.IsValid)
@@ -70,6 +75,9 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
     /// <param name="realEstateDto">объект недвижимости с обновленными данными</param>
     /// <returns>результат выполнения операции</returns>
     [HttpPut("{id}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
     public async Task<ActionResult> UpdateRealEstate(int id, [FromBody] RealEstateDto realEstateDto)
     {
         if (!ModelState.IsValid)
@@ -93,6 +101,9 @@ public class RealEstatesController(RealEstateService realEstateService) : Contro
     /// <param name="id">идентификатор объекта недвижимости</param>
     /// <returns>результат выполнения операции</returns>
     [HttpDelete("{id}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(500)]
     public async Task<ActionResult> DeleteRealEstate(int id)
     {
         try

@@ -1,0 +1,355 @@
+﻿@page "/orders"
+@inject RealEstateAgencyApiWrapper ApiWrapper
+@using RealEstateAgency.WebApplication.Api
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+
+<PageTitle>Orders</PageTitle>
+
+<h3>Orders</h3>
+
+<button class="btn btn-primary mb-3" @onclick="ShowCreateModal">Create New Order</button>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Time</th>
+            <th>Client</th>
+            <th>Price</th>
+            <th>Type</th>
+            <th>Real Estate</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (orders == null)
+        {
+            <tr>
+                <td colspan="7">Loading...</td>
+            </tr>
+        }
+        else if (orders.Count == 0)
+        {
+            <tr>
+                <td colspan="7">No orders found.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>@order.Time.ToString("g")</td>
+                    <td>@GetClientName(order.ClientId)</td>
+                    <td>@order.Price.ToString("C")</td>
+                    <td>@order.Type</td>
+                    <td>@GetRealEstateAddress(order.RealEstateId)</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" @onclick="() => ShowEditModal(order)">Edit</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteOrder(order.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@if (createModalVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Order</h5>
+                    <button type="button" class="close" @onclick="CloseCreateModal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(errorMessageCreate))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @errorMessageCreate
+                        </div>
+                    }
+                    <EditForm Model="newOrder" OnValidSubmit="HandleCreateOrder">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="form-group">
+                            <label for="time">Time</label>
+                            <InputDate id="time" class="form-control" @bind-Value="newOrder.Time" />
+                        </div>
+                        <div class="form-group">
+                            <label for="clientId">Client</label>
+                            <select id="clientId" class="form-control" @bind="newOrder.ClientId">
+                                <option value="">-- Select Client --</option>
+                                @foreach (var client in clients)
+                                {
+                                    <option value="@client.Id">@client.FirstAndLastName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price</label>
+                            <InputNumber id="price" class="form-control" @bind-Value="newOrder.Price" />
+                        </div>
+                        <div class="form-group">
+                            <label for="type">Type</label>
+                            <select id="type" class="form-control" @bind="newOrder.Type">
+                                <option value="">-- Select Type --</option>
+                                @foreach (var type in orderTypes)
+                                {
+                                    <option value="@type">@type</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="realEstateId">Real Estate</label>
+                            <select id="realEstateId" class="form-control" @bind="newOrder.RealEstateId">
+                                <option value="">-- Select Real Estate --</option>
+                                @foreach (var estate in realEstates)
+                                {
+                                    <option value="@estate.Id">@estate.Address</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseCreateModal">Cancel</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (editModalVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Order</h5>
+                    <button type="button" class="close" @onclick="CloseEditModal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(errorMessageEdit))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @errorMessageEdit
+                        </div>
+                    }
+                    <EditForm Model="editOrder" OnValidSubmit="HandleEditOrder">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="form-group">
+                            <label for="editTime">Time</label>
+                            <InputDate id="editTime" class="form-control" @bind-Value="editOrder.Time" />
+                        </div>
+                        <div class="form-group">
+                            <label for="editClientId">Client</label>
+                            <select id="editClientId" class="form-control" @bind="editOrder.ClientId">
+                                <option value="">-- Select Client --</option>
+                                @foreach (var client in clients)
+                                {
+                                    <option value="@client.Id">@client.FirstAndLastName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPrice">Price</label>
+                            <InputNumber id="editPrice" class="form-control" @bind-Value="editOrder.Price" />
+                        </div>
+                        <div class="form-group">
+                            <label for="editType">Type</label>
+                            <select id="editType" class="form-control" @bind="editOrder.Type">
+                                <option value="">-- Select Type --</option>
+                                @foreach (var type in orderTypes)
+                                {
+                                    <option value="@type">@type</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editRealEstateId">Real Estate</label>
+                            <select id="editRealEstateId" class="form-control" @bind="editOrder.RealEstateId">
+                                <option value="">-- Select Real Estate --</option>
+                                @foreach (var estate in realEstates)
+                                {
+                                    <option value="@estate.Id">@estate.Address</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Update</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseEditModal">Cancel</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private IList<OrderGetDto> orders = new List<OrderGetDto>();
+
+    private IList<ClientGetDto> clients = new List<ClientGetDto>();
+    private IList<RealEstateGetDto> realEstates = new List<RealEstateGetDto>();
+
+    private List<string> orderTypes = new List<string> { "Purchase", "Sale" };
+
+    private OrderDto newOrder = new OrderDto();
+    private bool createModalVisible = false;
+    private string errorMessageCreate;
+
+    private OrderGetDto selectedOrder;
+    private OrderDto editOrder = new OrderDto();
+    private bool editModalVisible = false;
+    private string errorMessageEdit;
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+        await LoadClients();
+        await LoadRealEstates();
+    }
+
+    private async Task LoadOrders()
+    {
+        try
+        {
+            orders = await ApiWrapper.GetOrder();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading orders: {ex.Message}");
+        }
+    }
+
+    private async Task LoadClients()
+    {
+        try
+        {
+            clients = await ApiWrapper.GetClients();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading clients: {ex.Message}");
+        }
+    }
+
+    private async Task LoadRealEstates()
+    {
+        try
+        {
+            realEstates = await ApiWrapper.GetRealEstate();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading real estates: {ex.Message}");
+        }
+    }
+
+    private void ShowCreateModal()
+    {
+        newOrder = new OrderDto(); 
+        createModalVisible = true;
+        errorMessageCreate = string.Empty;
+    }
+
+    private void CloseCreateModal()
+    {
+        createModalVisible = false;
+    }
+
+    private async Task HandleCreateOrder()
+    {
+        try
+        {
+            await ApiWrapper.CreateOrder(newOrder);
+            await LoadOrders();
+            createModalVisible = false;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error creating order: {ex.Message}");
+            errorMessageCreate = $"Error creating order: {ex.Message}";
+        }
+    }
+
+    private void ShowEditModal(OrderGetDto order)
+    {
+        selectedOrder = order;
+        editOrder = new OrderDto
+            {
+                Time = order.Time,
+                ClientId = order.ClientId,
+                Price = order.Price,
+                Type = order.Type,
+                RealEstateId = order.RealEstateId
+            };
+        editModalVisible = true;
+        errorMessageEdit = string.Empty;
+    }
+
+    private void CloseEditModal()
+    {
+        editModalVisible = false;
+    }
+
+    private async Task HandleEditOrder()
+    {
+        if (selectedOrder != null)
+        {
+            try
+            {
+                await ApiWrapper.UpdateOrder(selectedOrder.Id, editOrder);
+                await LoadOrders();
+                editModalVisible = false;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error updating order: {ex.Message}");
+                errorMessageEdit = $"Error updating order: {ex.Message}";
+            }
+        }
+    }
+
+    private async Task DeleteOrder(int id)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete Order with ID {id}?");
+        if (confirmed)
+        {
+            try
+            {
+                await ApiWrapper.DeleteOrder(id);
+                await LoadOrders();
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error deleting order: {ex.Message}");
+            }
+        }
+    }
+
+    private string GetClientName(int clientId)
+    {
+        var client = clients.FirstOrDefault(c => c.Id == clientId);
+        return client != null ? client.FirstAndLastName : "Unknown Client";
+    }
+
+    private string GetRealEstateAddress(int realEstateId)
+    {
+        var estate = realEstates.FirstOrDefault(e => e.Id == realEstateId);
+        return estate != null ? estate.Address : "Unknown Real Estate";
+    }
+}

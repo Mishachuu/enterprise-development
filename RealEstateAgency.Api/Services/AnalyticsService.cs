@@ -52,7 +52,7 @@ public class AnalyticsService(IRepository<Order, int> orderRepository, IReposito
         var result = new SellerRealEstateDto
         {
             RealEstate = mapper.Map<RealEstateDto>(realEstate),
-            Sellers = mapper.Map<List<ClientDto>>(matchingSellers)
+            Sellers = mapper.Map<List<ClientDto>>(matchingSellers),
         };
 
         return result;

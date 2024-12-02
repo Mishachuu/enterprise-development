@@ -20,10 +20,10 @@ public class OrderService(
         return mapper.Map<List<OrderGetDto>>(orders);
     }
 
-    public async Task<List<OrderDto>> GetOrdersByPredicate(Expression<Func<Order, bool>> predicate)
+    public async Task<List<OrderGetDto>> GetOrdersByPredicate(Expression<Func<Order, bool>> predicate)
     {
         var orders = await orderRepository.GetAsList(predicate);
-        return mapper.Map<List<OrderDto>>(orders);
+        return mapper.Map<List<OrderGetDto>>(orders);
     }
 
     public async Task AddOrder(OrderDto orderDto)

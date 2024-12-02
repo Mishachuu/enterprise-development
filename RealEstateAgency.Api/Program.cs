@@ -41,6 +41,17 @@ builder.Services.AddSwaggerGen(c =>
     c.IncludeXmlComments(xmlPath);
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost",
+        builder => builder
+            .WithOrigins("https://localhost:7183")  // Разрешаем доступ только с этого домена
+            .AllowAnyMethod()                      // Разрешаем все методы (GET, POST, PUT, DELETE и т.д.)
+            .AllowAnyHeader()                      // Разрешаем все заголовки
+            .AllowCredentials());                  // Разрешаем передачу cookies, если нужно
+});
+
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -55,5 +66,5 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 
 app.MapControllers();
-
+app.UseCors("AllowLocalhost");
 app.Run();

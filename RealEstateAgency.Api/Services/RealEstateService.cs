@@ -15,10 +15,10 @@ public class RealEstateService(IRepository<RealEstate, int> realEstateRepository
         return mapper.Map<List<RealEstateGetDto>>(realEstates);
     }
 
-    public async Task<List<RealEstateDto>> GetRealEstatesByPredicate(Expression<Func<RealEstate, bool>> predicate)
+    public async Task<List<RealEstateGetDto>> GetRealEstatesByPredicate(Expression<Func<RealEstate, bool>> predicate)
     {
         var realEstates = await realEstateRepository.GetAsList(predicate);
-        return mapper.Map<List<RealEstateDto>>(realEstates);
+        return mapper.Map<List<RealEstateGetDto>>(realEstates);
     }
 
     public async Task AddRealEstate(RealEstateDto realEstateDto)

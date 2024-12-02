@@ -1,0 +1,431 @@
+﻿@page "/analytics"
+@using RealEstateAgency.WebApplication.Api
+@using System.Globalization
+
+@inject RealEstateAgencyApiWrapper ApiWrapper
+
+<PageTitle>Аналитика Недвижимости</PageTitle>
+
+<h3 class="mb-4">Аналитика Недвижимости</h3>
+
+@if (isLoading)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container-fluid">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Клиенты по Типу Недвижимости</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="realEstateType" class="form-label">Тип недвижимости:</label>
+                        <select id="realEstateType" class="form-select" @onchange="OnRealEstateTypeChanged">
+                            <option value="">--Выберите Тип--</option>
+                            @foreach (var type in realEstateTypes)
+                            {
+                                <option value="@type">@type</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                @if (clientsByType != null && clientsByType.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ФИО</th>
+                                    <th>Паспорт</th>
+                                    <th>Телефон</th>
+                                    <th>Адрес</th>
+                                    <th>Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var client in clientsByType)
+                                {
+                                    <tr>
+                                        <td>@client.FirstAndLastName</td>
+                                        <td>@client.Pasport</td>
+                                        <td>@client.NumberPhone</td>
+                                        <td>@client.Address</td>
+                                        <td>@client.Email</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else if (!string.IsNullOrEmpty(selectedRealEstateType))
+                {
+                    <p class="text-muted">Нет данных для выбранного типа недвижимости.</p>
+                }
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Продавцы за Период</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Начальная Дата:</label>
+                        <InputDate class="form-control" @bind-Value="startDate" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Конечная Дата:</label>
+                        <InputDate class="form-control" @bind-Value="endDate" />
+                    </div>
+                    <div class="col-md-3 align-self-end">
+                        <button class="btn btn-primary" @onclick="LoadSellersByPeriod">Загрузить</button>
+                    </div>
+                </div>
+
+                @if (sellersByPeriod != null && sellersByPeriod.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ФИО</th>
+                                    <th>Паспорт</th>
+                                    <th>Телефон</th>
+                                    <th>Адрес</th>
+                                    <th>Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var seller in sellersByPeriod)
+                                {
+                                    <tr>
+                                        <td>@seller.FirstAndLastName</td>
+                                        <td>@seller.Pasport</td>
+                                        <td>@seller.NumberPhone</td>
+                                        <td>@seller.Address</td>
+                                        <td>@seller.Email</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else if (sellersByPeriod != null)
+                {
+                    <p class="text-muted">Нет продавцов за указанный период.</p>
+                }
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Соответствующие Продавцы для Покупателя</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="buyerSelect" class="form-label">Покупатель:</label>
+                        <select id="buyerSelect" class="form-select" @onchange="OnBuyerSelected">
+                            <option value="">--Выберите Покупателя--</option>
+                            @foreach (var client in allClients)
+                            {
+                                <option value="@client.Id">@client.FirstAndLastName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2 align-self-end">
+                        <button class="btn btn-primary" @onclick="LoadMatchingSellers" disabled="@(!CanLoadMatchingSellers)">
+                            Загрузить
+                        </button>
+                    </div>
+                </div>
+
+                @if (matchingSellers != null)
+                {
+                    <div class="mb-3">
+                        <h6>Недвижимость:</h6>
+                        <ul class="list-group">
+                            <li class="list-group-item"><strong>Тип:</strong> @matchingSellers.RealEstate.Type</li>
+                            <li class="list-group-item"><strong>Площадь:</strong> @matchingSellers.RealEstate.Square м²</li>
+                            <li class="list-group-item"><strong>Количество комнат:</strong> @matchingSellers.RealEstate.NumberOfRooms</li>
+                            <li class="list-group-item"><strong>Адрес:</strong> @matchingSellers.RealEstate.Address</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h6>Продавцы:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ФИО</th>
+                                        <th>Паспорт</th>
+                                        <th>Телефон</th>
+                                        <th>Адрес</th>
+                                        <th>Email</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var seller in matchingSellers.Sellers)
+                                    {
+                                        <tr>
+                                            <td>@seller.FirstAndLastName</td>
+                                            <td>@seller.Pasport</td>
+                                            <td>@seller.NumberPhone</td>
+                                            <td>@seller.Address</td>
+                                            <td>@seller.Email</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+                else if (buyerId > 0)
+                {
+                    <p class="text-muted">Нет соответствующих продавцов для указанного покупателя.</p>
+                }
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Количество Заказов по Типу</h5>
+            </div>
+            <div class="card-body">
+                @if (orderCountByType != null && orderCountByType.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Тип Недвижимости</th>
+                                    <th>Количество Заказов</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in orderCountByType)
+                                {
+                                    <tr>
+                                        <td>@item.RealEstateType</td>
+                                        <td>@item.OrderCount</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">Нет данных о заказах по типу недвижимости.</p>
+                }
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Топ Покупателей</h5>
+            </div>
+            <div class="card-body">
+                @if (topPurchasers != null && topPurchasers.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Клиент</th>
+                                    <th>Количество Заказов</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var purchaser in topPurchasers)
+                                {
+                                    <tr>
+                                        <td>@purchaser.Client.FirstAndLastName</td>
+                                        <td>@purchaser.OrderCount</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">Нет данных о топ покупателях.</p>
+                }
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Топ Продавцов</h5>
+            </div>
+            <div class="card-body">
+                @if (topSellers != null && topSellers.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Клиент</th>
+                                    <th>Количество Заказов</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var seller in topSellers)
+                                {
+                                    <tr>
+                                        <td>@seller.Client.FirstAndLastName</td>
+                                        <td>@seller.OrderCount</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">Нет данных о топ продавцах.</p>
+                }
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Заказы с Минимальной Ценой</h5>
+            </div>
+            <div class="card-body">
+                @if (minPriceOrders != null && minPriceOrders.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Клиент</th>
+                                    <th>Цена Заказа</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in minPriceOrders)
+                                {
+                                    <tr>
+                                        <td>@order.Client.FirstAndLastName</td>
+                                        <td>@order.OrderPrice.ToString("C", CultureInfo.CurrentCulture)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">Нет заказов с минимальной ценой.</p>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+
+    private IList<ClientDto> clientsByType;
+    private string selectedRealEstateType;
+    private List<string> realEstateTypes = new List<string> { "Residential", "Uninhabitable" };
+
+    private IList<ClientDto> sellersByPeriod;
+    private DateTime startDate = DateTime.Today.AddMonths(-1);
+    private DateTime endDate = DateTime.Today;
+
+    private SellerRealEstateDto matchingSellers;
+    private int buyerId;
+    private IList<ClientGetDto> allClients = new List<ClientGetDto>();
+    private IList<RealEstateOrderCountDto> orderCountByType;
+    private IList<ClientOrderCountDto> topPurchasers;
+    private IList<ClientOrderCountDto> topSellers;
+    private IList<ClientOrderPriceDto> minPriceOrders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAllData();
+        isLoading = false;
+    }
+
+    private async Task LoadAllData()
+    {
+        allClients = await ApiWrapper.GetClients();
+
+        if (!string.IsNullOrEmpty(selectedRealEstateType))
+        {
+            clientsByType = await ApiWrapper.ClientsByRealestateTypeAsync(selectedRealEstateType);
+        }
+
+        orderCountByType = await ApiWrapper.OrderCountByTypeAsync();
+
+        topPurchasers = await ApiWrapper.TopPurchasersAsync();
+
+        topSellers = await ApiWrapper.TopSellersAsync();
+
+        minPriceOrders = await ApiWrapper.MinPriceOrdersAsync();
+    }
+
+    private async Task OnRealEstateTypeChanged(ChangeEventArgs e)
+    {
+        selectedRealEstateType = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedRealEstateType))
+        {
+            clientsByType = await ApiWrapper.ClientsByRealestateTypeAsync(selectedRealEstateType);
+        }
+        else
+        {
+            clientsByType = null;
+        }
+    }
+
+    private async Task LoadSellersByPeriod()
+    {
+        if (startDate <= endDate)
+        {
+            sellersByPeriod = await ApiWrapper.SellersByPeriodAsync(startDate, endDate);
+        }
+        else
+        {
+            sellersByPeriod = new List<ClientDto>();
+        }
+    }
+
+    private async Task LoadMatchingSellers()
+    {
+        if (buyerId > 0)
+        {
+            matchingSellers = await ApiWrapper.MatchingSellersForBuyerAsync(buyerId);
+        }
+        else
+        {
+            matchingSellers = null;
+        }
+    }
+
+    private void OnBuyerSelected(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int selectedId))
+        {
+            buyerId = selectedId;
+        }
+        else
+        {
+            buyerId = 0;
+        }
+    }
+
+    private bool CanLoadMatchingSellers => buyerId > 0;
+}

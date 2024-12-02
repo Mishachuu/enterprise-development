@@ -15,6 +15,7 @@ public class OrdersController(OrderService orderService) : ControllerBase
     /// </summary>
     /// <returns>список заказов в виде OrderGetDto</returns>
     [HttpGet]
+    [ProducesResponseType(200)]
     public async Task<ActionResult<List<OrderGetDto>>> GetOrders()
     {
         var orders = await orderService.GetAllOrders();
@@ -27,7 +28,9 @@ public class OrdersController(OrderService orderService) : ControllerBase
     /// <param name="id">идентификатор заказа</param>
     /// <returns>заказ в виде OrderGetDto</returns>
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<OrderDto>> GetOrder(int id)
+    [ProducesResponseType(404)]
+    [ProducesResponseType(200)]
+    public async Task<ActionResult<OrderGetDto>> GetOrder(int id)
     {
         var orders = await orderService.GetOrdersByPredicate(o => o.Id == id);
         if (orders == null || orders.Count == 0)
@@ -55,6 +58,8 @@ public class OrdersController(OrderService orderService) : ControllerBase
     /// <returns>Результат выполнения операции</returns>
 
     [HttpPost]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(200)]
     public async Task<ActionResult> AddOrder([FromBody] OrderDto orderDto)
     {
         if (!ModelState.IsValid)
@@ -72,6 +77,8 @@ public class OrdersController(OrderService orderService) : ControllerBase
     /// <param name="orderDto">объект заказа с обновленными данными</param>
     /// <returns>результат выполнения операции</returns>
     [HttpPut("{id:int}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
     public async Task<ActionResult> UpdateOrder(int id, [FromBody] OrderDto orderDto)
     {
         if (!ModelState.IsValid)
@@ -88,6 +95,9 @@ public class OrdersController(OrderService orderService) : ControllerBase
     /// <param name="id">идентификатор заказа</param>
     /// <returns>результат выполнения операции</returns>
     [HttpDelete("{id:int}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(500)]
     public async Task<ActionResult> DeleteOrder(int id)
     {
         try

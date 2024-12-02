@@ -1,0 +1,262 @@
+﻿@page "/realestate"
+@inject RealEstateAgencyApiWrapper ApiWrapper
+@using RealEstateAgency.WebApplication.Api
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+
+<PageTitle>Real Estate</PageTitle>
+
+<h3>Real Estate</h3>
+
+<button class="btn btn-primary mb-3" @onclick="ShowCreateModal">Add New Real Estate</button>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Address</th>
+            <th>Square (m²)</th>
+            <th>Number of Rooms</th>
+            <th>Type</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (realEstates == null)
+        {
+            <tr>
+                <td colspan="6">Loading...</td>
+            </tr>
+        }
+        else if (realEstates.Count == 0)
+        {
+            <tr>
+                <td colspan="6">No real estate listings found.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var estate in realEstates)
+            {
+                <tr>
+                    <td>@estate.Id</td>
+                    <td>@estate.Address</td>
+                    <td>@estate.Square</td>
+                    <td>@estate.NumberOfRooms</td>
+                    <td>@estate.Type</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" @onclick="() => ShowEditModal(estate)">Edit</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteRealEstate(estate.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@if (createModalVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Real Estate</h5>
+                    <button type="button" class="close" @onclick="CloseCreateModal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="newRealEstate" OnValidSubmit="HandleCreateRealEstate">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <InputText id="address" class="form-control" @bind-Value="newRealEstate.Address" />
+                        </div>
+                        <div class="form-group">
+                            <label for="square">Square (m²)</label>
+                            <InputNumber id="square" class="form-control" @bind-Value="newRealEstate.Square" />
+                        </div>
+                        <div class="form-group">
+                            <label for="numberOfRooms">Number of Rooms</label>
+                            <InputNumber id="numberOfRooms" class="form-control" @bind-Value="newRealEstate.NumberOfRooms" />
+                        </div>
+                        <div class="form-group">
+                            <label for="type">Type</label>
+                            <select id="type" class="form-control" @bind="newRealEstate.Type">
+                                <option value="">-- Select Type --</option>
+                                @foreach (var type in realEstateTypes)
+                                {
+                                    <option value="@type">@type</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseCreateModal">Cancel</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (editModalVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Real Estate</h5>
+                    <button type="button" class="close" @onclick="CloseEditModal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="editRealEstate" OnValidSubmit="HandleEditRealEstate">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="form-group">
+                            <label for="editAddress">Address</label>
+                            <InputText id="editAddress" class="form-control" @bind-Value="editRealEstate.Address" />
+                        </div>
+                        <div class="form-group">
+                            <label for="editSquare">Square (m²)</label>
+                            <InputNumber id="editSquare" class="form-control" @bind-Value="editRealEstate.Square" />
+                        </div>
+                        <div class="form-group">
+                            <label for="editNumberOfRooms">Number of Rooms</label>
+                            <InputNumber id="editNumberOfRooms" class="form-control" @bind-Value="editRealEstate.NumberOfRooms" />
+                        </div>
+                        <div class="form-group">
+                            <label for="editType">Type</label>
+                            <select id="editType" class="form-control" @bind="editRealEstate.Type">
+                                <option value="">-- Select Type --</option>
+                                @foreach (var type in realEstateTypes)
+                                {
+                                    <option value="@type">@type</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Update</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseEditModal">Cancel</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private IList<RealEstateGetDto> realEstates = new List<RealEstateGetDto>();
+
+    private RealEstateDto newRealEstate = new RealEstateDto();
+    private bool createModalVisible = false;
+
+    private RealEstateGetDto selectedRealEstate;
+    private RealEstateDto editRealEstate = new RealEstateDto();
+    private bool editModalVisible = false;
+
+    private List<string> realEstateTypes = new List<string> { "Residential", "Uninhabitable" };
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRealEstates();
+    }
+
+    private async Task LoadRealEstates()
+    {
+        try
+        {
+            realEstates = await ApiWrapper.GetRealEstate();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading real estates: {ex.Message}");
+        }
+    }
+
+    private void ShowCreateModal()
+    {
+        newRealEstate = new RealEstateDto(); 
+        createModalVisible = true;
+    }
+
+    private void CloseCreateModal()
+    {
+        createModalVisible = false;
+    }
+
+    private async Task HandleCreateRealEstate()
+    {
+        try
+        {
+            await ApiWrapper.CreateRealEstates(newRealEstate);
+            await LoadRealEstates();
+            createModalVisible = false;
+        }
+        catch (Exception ex)
+        {
+            
+            Console.Error.WriteLine($"Error creating real estate: {ex.Message}");
+        }
+    }
+
+    private void ShowEditModal(RealEstateGetDto estate)
+    {
+        selectedRealEstate = estate;
+        editRealEstate = new RealEstateDto
+            {
+                Address = estate.Address,
+                Square = estate.Square,
+                NumberOfRooms = estate.NumberOfRooms,
+                Type = estate.Type
+            };
+        editModalVisible = true;
+    }
+
+    private void CloseEditModal()
+    {
+        editModalVisible = false;
+    }
+
+    private async Task HandleEditRealEstate()
+    {
+        if (selectedRealEstate != null)
+        {
+            try
+            {
+                await ApiWrapper.UpdateRealEstate(selectedRealEstate.Id, editRealEstate);
+                await LoadRealEstates();
+                editModalVisible = false;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error updating real estate: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task DeleteRealEstate(int id)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete Real Estate with ID {id}?");
+        if (confirmed)
+        {
+            try
+            {
+                await ApiWrapper.DeleteRealEstate(id);
+                await LoadRealEstates();
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error deleting real estate: {ex.Message}");
+            }
+        }
+    }
+}

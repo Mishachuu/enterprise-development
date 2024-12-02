@@ -1,0 +1,183 @@
+﻿@page "/clients"
+@inject RealEstateAgencyApiWrapper ApiWrapper
+@using RealEstateAgency.WebApplication.Api
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+
+<PageTitle>Clients</PageTitle>
+
+<h3>Clients</h3>
+
+<button class="btn btn-primary" @onclick="ShowCreateModal">Create New Client</button>
+
+<Table class="table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var client in clients)
+        {
+            <tr>
+                <td>@client.Id</td>
+                <td>@client.FirstAndLastName</td>
+                <td>@client.NumberPhone</td>
+                <td>@client.Email</td>
+                <td>
+                    <button class="btn btn-warning" @onclick="() => ShowEditModal(client)">Edit</button>
+                    <button class="btn btn-danger" @onclick="() => DeleteClient(client.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</Table>
+
+<div class="modal" tabindex="-1" role="dialog" style="display:@(createModalVisible ? "block" : "none")">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Client</h5>
+                <button type="button" class="close" @onclick="CloseCreateModal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="newClient" OnValidSubmit="HandleCreateClient">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="form-group">
+                        <label for="firstAndLastName">Full Name</label>
+                        <InputText id="firstAndLastName" class="form-control" @bind-Value="newClient.FirstAndLastName" />
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <InputText id="phone" class="form-control" @bind-Value="newClient.NumberPhone" />
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <InputText id="email" class="form-control" @bind-Value="newClient.Email" />
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <InputText id="address" class="form-control" @bind-Value="newClient.Address" />
+                    </div>
+                    <div class="form-group">
+                        <label for="editAddress">Passport</label>
+                        <InputText id="Pasport" class="form-control" @bind-Value="newClient.Pasport" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" style="display:@(editModalVisible ? "block" : "none")">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Client</h5>
+                <button type="button" class="close" @onclick="CloseEditModal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="editClient" OnValidSubmit="HandleEditClient">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="form-group">
+                        <label for="editFirstAndLastName">Full Name</label>
+                        <InputText id="editFirstAndLastName" class="form-control" @bind-Value="editClient.FirstAndLastName" />
+                    </div>
+                    <div class="form-group">
+                        <label for="editPhone">Phone</label>
+                        <InputText id="editPhone" class="form-control" @bind-Value="editClient.NumberPhone" />
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email</label>
+                        <InputText id="editEmail" class="form-control" @bind-Value="editClient.Email" />
+                    </div>
+                    <div class="form-group">
+                        <label for="editAddress">Address</label>
+                        <InputText id="editAddress" class="form-control" @bind-Value="editClient.Address" />
+                    </div>
+                    <div class="form-group">
+                        <label for="editAddress">Passport</label>
+                        <InputText id="editPasport" class="form-control" @bind-Value="editClient.Pasport" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private IList<ClientGetDto> clients = new List<ClientGetDto>();
+    private ClientDto newClient = new ClientDto();
+    private ClientGetDto editClient = new ClientGetDto();
+
+    private bool createModalVisible = false;
+    private bool editModalVisible = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        clients = await ApiWrapper.GetClients();
+    }
+
+    private void ShowCreateModal()
+    {
+        newClient = new ClientDto(); 
+        createModalVisible = true;
+    }
+
+    private void ShowEditModal(ClientGetDto client)
+    {
+        editClient = new ClientGetDto
+        {
+            Id = client.Id,
+            FirstAndLastName = client.FirstAndLastName,
+            NumberPhone = client.NumberPhone,
+            Email = client.Email,
+            Address = client.Address,
+            Pasport = client.Pasport
+        };
+        editModalVisible = true;
+    }
+
+    private void CloseCreateModal()
+    {
+        createModalVisible = false;
+    }
+
+    private void CloseEditModal()
+    {
+        editModalVisible = false;
+    }
+
+    private async Task HandleCreateClient()
+    {
+        await ApiWrapper.CreateClient(newClient);
+        clients = await ApiWrapper.GetClients();
+        createModalVisible = false;
+    }
+
+    private async Task HandleEditClient()
+    {
+        var newclientdto = new ClientDto() { Address = editClient.Address, Email = editClient.Email, FirstAndLastName = editClient.FirstAndLastName, NumberPhone = editClient.NumberPhone, Pasport = editClient.Pasport };
+        await ApiWrapper.UpdateClient(editClient.Id, newclientdto);
+        clients = await ApiWrapper.GetClients();
+        editModalVisible = false;
+    }
+
+    private async Task DeleteClient(int id)
+    {
+        await ApiWrapper.DeleteClient(id);
+        clients = await ApiWrapper.GetClients();
+    }
+}
