@@ -231,7 +231,7 @@
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error loading orders: {ex.Message}");
+            Console.Error.WriteLine($"Ошибка загрузки заказов: {ex.Message}");
         }
     }
 
@@ -243,7 +243,7 @@
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error loading clients: {ex.Message}");
+            Console.Error.WriteLine($"Ошибка загрузки клиентов: {ex.Message}");
         }
     }
 
@@ -255,7 +255,7 @@
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error loading real estates: {ex.Message}");
+            Console.Error.WriteLine($"Ошибка загрузки недвижимости: {ex.Message}");
         }
     }
 
@@ -281,8 +281,7 @@
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error creating order: {ex.Message}");
-            errorMessageCreate = $"Error creating order: {ex.Message}";
+            errorMessageCreate = $"Ошибка создания заказа: {ex.Message}";
         }
     }
 
@@ -318,15 +317,14 @@
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Error updating order: {ex.Message}");
-                errorMessageEdit = $"Error updating order: {ex.Message}";
+                errorMessageEdit = $"Ошибка обновления заказа.: {ex.Message}";
             }
         }
     }
 
     private async Task DeleteOrder(int id)
     {
-        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete Order with ID {id}?");
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("подтвердить", $"Вы уверены, что хотите удалить заказ с идентификатором {id}?");
         if (confirmed)
         {
             try
@@ -336,7 +334,7 @@
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Error deleting order: {ex.Message}");
+                Console.Error.WriteLine($"Ошибка удаления заказа.: {ex.Message}");
             }
         }
     }
@@ -344,12 +342,12 @@
     private string GetClientName(int clientId)
     {
         var client = clients.FirstOrDefault(c => c.Id == clientId);
-        return client != null ? client.FirstAndLastName : "Unknown Client";
+        return client != null ? client.FirstAndLastName : "Неизвестный клиент";
     }
 
     private string GetRealEstateAddress(int realEstateId)
     {
         var estate = realEstates.FirstOrDefault(e => e.Id == realEstateId);
-        return estate != null ? estate.Address : "Unknown Real Estate";
+        return estate != null ? estate.Address : "Неизвестная недвижимость";
     }
 }

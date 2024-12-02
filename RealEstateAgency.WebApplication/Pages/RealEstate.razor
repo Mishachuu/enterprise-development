@@ -178,7 +178,7 @@
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error loading real estates: {ex.Message}");
+            Console.Error.WriteLine($"Ошибка загрузки недвижимости: {ex.Message}");
         }
     }
 
@@ -204,7 +204,7 @@
         catch (Exception ex)
         {
             
-            Console.Error.WriteLine($"Error creating real estate: {ex.Message}");
+            Console.Error.WriteLine($"Ошибка при создании недвижимости: {ex.Message}");
         }
     }
 
@@ -238,14 +238,14 @@
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Error updating real estate: {ex.Message}");
+                Console.Error.WriteLine($"Ошибка обновления недвижимости: {ex.Message}");
             }
         }
     }
 
     private async Task DeleteRealEstate(int id)
     {
-        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete Real Estate with ID {id}?");
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("Подтвердить", $"Вы уверены, что хотите удалить недвижимость с идентификатором {id}?");
         if (confirmed)
         {
             try
@@ -255,7 +255,7 @@
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Error deleting real estate: {ex.Message}");
+                Console.Error.WriteLine($"Ошибка удаления недвижимости: {ex.Message}");
             }
         }
     }
