@@ -45,10 +45,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost",
         builder => builder
-            .WithOrigins("https://localhost:7183")  // Разрешаем доступ только с этого домена
-            .AllowAnyMethod()                      // Разрешаем все методы (GET, POST, PUT, DELETE и т.д.)
-            .AllowAnyHeader()                      // Разрешаем все заголовки
-            .AllowCredentials());                  // Разрешаем передачу cookies, если нужно
+            .WithOrigins("https://localhost:7183")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 

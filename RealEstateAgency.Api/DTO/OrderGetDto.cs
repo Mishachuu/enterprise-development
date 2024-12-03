@@ -1,5 +1,5 @@
-﻿using static RealEstateAgency.Domain.Order;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using static RealEstateAgency.Domain.Order;
 
 namespace RealEstateAgency.Api.DTO;
 

@@ -2,9 +2,6 @@
 using RealEstateAgency.Api.DTO;
 using RealEstateAgency.Api.Services;
 using RealEstateAgency.Domain;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace RealEstateAgency.Api.Controllers
 {
