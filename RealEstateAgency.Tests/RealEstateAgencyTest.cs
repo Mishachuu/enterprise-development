@@ -32,7 +32,7 @@ public class RealEstateAgencyQueryTests
             .ToList();
 
         Assert.NotEmpty(sellers);
-        Assert.Contains(sellers, s => s.FirstAndLastName == "Chukarev Michail");
+        Assert.Contains(sellers, s => s.FirstAndLastName == "Petrov Petr");
         Assert.Contains(sellers, s => s.FirstAndLastName == "Stepanov Dima");
     }
 
