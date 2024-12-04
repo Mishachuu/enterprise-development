@@ -10,7 +10,7 @@
 
 <button class="btn btn-primary" @onclick="ShowCreateModal">Create New Client</button>
 
-<Table class="table">
+<table class="table table-striped">
     <thead>
         <tr>
             <th>#</th>
@@ -35,7 +35,7 @@
             </tr>
         }
     </tbody>
-</Table>
+</table>
 
 <div class="modal" tabindex="-1" role="dialog" style="display:@(createModalVisible ? "block" : "none")">
     <div class="modal-dialog" role="document">

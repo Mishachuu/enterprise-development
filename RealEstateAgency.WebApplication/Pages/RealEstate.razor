@@ -156,7 +156,7 @@
     private RealEstateDto newRealEstate = new RealEstateDto();
     private bool createModalVisible = false;
 
-    private RealEstateGetDto selectedRealEstate;
+    private RealEstateGetDto? _selectedRealEstate;
     private RealEstateDto editRealEstate = new RealEstateDto();
     private bool editModalVisible = false;
 
@@ -178,13 +178,13 @@
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Ошибка загрузки недвижимости: {ex.Message}");
+            Console.Error.WriteLine($"Error loading real estate: {ex.Message}");
         }
     }
 
     private void ShowCreateModal()
     {
-        newRealEstate = new RealEstateDto(); 
+        newRealEstate = new RealEstateDto();
         createModalVisible = true;
     }
 
@@ -203,14 +203,13 @@
         }
         catch (Exception ex)
         {
-            
-            Console.Error.WriteLine($"Ошибка при создании недвижимости: {ex.Message}");
+            Console.Error.WriteLine($"Error creating real estate: {ex.Message}");
         }
     }
 
     private void ShowEditModal(RealEstateGetDto estate)
     {
-        selectedRealEstate = estate;
+        _selectedRealEstate = estate;
         editRealEstate = new RealEstateDto
             {
                 Address = estate.Address,
@@ -228,24 +227,24 @@
 
     private async Task HandleEditRealEstate()
     {
-        if (selectedRealEstate != null)
+        if (_selectedRealEstate != null)
         {
             try
             {
-                await ApiWrapper.UpdateRealEstate(selectedRealEstate.Id, editRealEstate);
+                await ApiWrapper.UpdateRealEstate(_selectedRealEstate.Id, editRealEstate);
                 await LoadRealEstates();
                 editModalVisible = false;
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Ошибка обновления недвижимости: {ex.Message}");
+                Console.Error.WriteLine($"Error updating real estate: {ex.Message}");
             }
         }
     }
 
     private async Task DeleteRealEstate(int id)
     {
-        bool confirmed = await JSRuntime.InvokeAsync<bool>("Подтвердить", $"Вы уверены, что хотите удалить недвижимость с идентификатором {id}?");
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete Real Estate with ID {id}?");
         if (confirmed)
         {
             try
@@ -255,7 +254,7 @@
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Ошибка удаления недвижимости: {ex.Message}");
+                Console.Error.WriteLine($"Error deleting real estate: {ex.Message}");
             }
         }
     }

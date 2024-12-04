@@ -68,10 +68,10 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    @if (!string.IsNullOrEmpty(errorMessageCreate))
+                    @if (!string.IsNullOrEmpty(_errorMessageCreate))
                     {
                         <div class="alert alert-danger" role="alert">
-                            @errorMessageCreate
+                            @_errorMessageCreate
                         </div>
                     }
                     <EditForm Model="newOrder" OnValidSubmit="HandleCreateOrder">
@@ -138,10 +138,10 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    @if (!string.IsNullOrEmpty(errorMessageEdit))
+                    @if (!string.IsNullOrEmpty(_errorMessageEdit))
                     {
                         <div class="alert alert-danger" role="alert">
-                            @errorMessageEdit
+                            @_errorMessageEdit
                         </div>
                     }
                     <EditForm Model="editOrder" OnValidSubmit="HandleEditOrder">
@@ -206,12 +206,12 @@
 
     private OrderDto newOrder = new OrderDto();
     private bool createModalVisible = false;
-    private string errorMessageCreate;
+    private string? _errorMessageCreate;
 
-    private OrderGetDto selectedOrder;
+    private OrderGetDto? _selectedOrder;
     private OrderDto editOrder = new OrderDto();
     private bool editModalVisible = false;
-    private string errorMessageEdit;
+    private string? _errorMessageEdit;
 
     [Inject]
     private IJSRuntime JSRuntime { get; set; }
@@ -231,7 +231,7 @@
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Ошибка загрузки заказов: {ex.Message}");
+            Console.Error.WriteLine($"Error loading orders: {ex.Message}");
         }
     }
 
@@ -243,7 +243,7 @@
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Ошибка загрузки клиентов: {ex.Message}");
+            Console.Error.WriteLine($"Error loading clients: {ex.Message}");
         }
     }
 
@@ -255,15 +255,15 @@
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Ошибка загрузки недвижимости: {ex.Message}");
+            Console.Error.WriteLine($"Error loading real estate: {ex.Message}");
         }
     }
 
     private void ShowCreateModal()
     {
-        newOrder = new OrderDto(); 
+        newOrder = new OrderDto();
         createModalVisible = true;
-        errorMessageCreate = string.Empty;
+        _errorMessageCreate = string.Empty;
     }
 
     private void CloseCreateModal()
@@ -281,13 +281,13 @@
         }
         catch (Exception ex)
         {
-            errorMessageCreate = $"Ошибка создания заказа: {ex.Message}";
+            _errorMessageCreate = $"Error creating order: {ex.Message}";
         }
     }
 
     private void ShowEditModal(OrderGetDto order)
     {
-        selectedOrder = order;
+        _selectedOrder = order;
         editOrder = new OrderDto
             {
                 Time = order.Time,
@@ -297,7 +297,7 @@
                 RealEstateId = order.RealEstateId
             };
         editModalVisible = true;
-        errorMessageEdit = string.Empty;
+        _errorMessageEdit = string.Empty;
     }
 
     private void CloseEditModal()
@@ -307,24 +307,24 @@
 
     private async Task HandleEditOrder()
     {
-        if (selectedOrder != null)
+        if (_selectedOrder != null)
         {
             try
             {
-                await ApiWrapper.UpdateOrder(selectedOrder.Id, editOrder);
+                await ApiWrapper.UpdateOrder(_selectedOrder.Id, editOrder);
                 await LoadOrders();
                 editModalVisible = false;
             }
             catch (Exception ex)
             {
-                errorMessageEdit = $"Ошибка обновления заказа.: {ex.Message}";
+                _errorMessageEdit = $"Error updating order: {ex.Message}";
             }
         }
     }
 
     private async Task DeleteOrder(int id)
     {
-        bool confirmed = await JSRuntime.InvokeAsync<bool>("подтвердить", $"Вы уверены, что хотите удалить заказ с идентификатором {id}?");
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the order with ID {id}?");
         if (confirmed)
         {
             try
@@ -334,7 +334,7 @@
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Ошибка удаления заказа.: {ex.Message}");
+                Console.Error.WriteLine($"Error deleting order: {ex.Message}");
             }
         }
     }
@@ -342,12 +342,12 @@
     private string GetClientName(int clientId)
     {
         var client = clients.FirstOrDefault(c => c.Id == clientId);
-        return client != null ? client.FirstAndLastName : "Неизвестный клиент";
+        return client != null ? client.FirstAndLastName : "Unknown client";
     }
 
     private string GetRealEstateAddress(int realEstateId)
     {
         var estate = realEstates.FirstOrDefault(e => e.Id == realEstateId);
-        return estate != null ? estate.Address : "Неизвестная недвижимость";
+        return estate != null ? estate.Address : "Unknown real estate";
     }
 }

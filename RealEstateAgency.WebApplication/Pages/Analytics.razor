@@ -4,15 +4,19 @@
 
 @inject RealEstateAgencyApiWrapper ApiWrapper
 
-<PageTitle>Аналитика Недвижимости</PageTitle>
+<PageTitle>
+    Real Estate Analytics
+</PageTitle>
 
-<h3 class="mb-4">Аналитика Недвижимости</h3>
+<h3 class="mb-4">
+    Real Estate Analytics
+</h3>
 
 @if (isLoading)
 {
     <div class="d-flex justify-content-center">
         <div class="spinner-border" role="status">
-            <span class="visually-hidden">Загрузка...</span>
+            <span class="visually-hidden">Download...</span>
         </div>
     </div>
 }
@@ -21,14 +25,20 @@ else
     <div class="container-fluid">
         <div class="card mb-4">
             <div class="card-header">
-                <h5>Клиенты по Типу Недвижимости</h5>
+                <h5>
+                    Clients by Property Type
+                </h5>
             </div>
             <div class="card-body">
                 <div class="row mb-3">
                     <div class="col-md-4">
-                        <label for="realEstateType" class="form-label">Тип недвижимости:</label>
+                        <label for="realEstateType" class="form-label">
+                            Property type:
+                        </label>
                         <select id="realEstateType" class="form-select" @onchange="OnRealEstateTypeChanged">
-                            <option value="">--Выберите Тип--</option>
+                            <option value="">
+                                --Select Type--
+                            </option>
                             @foreach (var type in realEstateTypes)
                             {
                                 <option value="@type">@type</option>
@@ -37,21 +47,21 @@ else
                     </div>
                 </div>
 
-                @if (clientsByType != null && clientsByType.Any())
+                @if (_clientsByType != null && _clientsByType.Any())
                 {
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>ФИО</th>
-                                    <th>Паспорт</th>
-                                    <th>Телефон</th>
-                                    <th>Адрес</th>
+                                    <th>FIO</th>
+                                    <th>Pasport</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
                                     <th>Email</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var client in clientsByType)
+                                @foreach (var client in _clientsByType)
                                 {
                                     <tr>
                                         <td>@client.FirstAndLastName</td>
@@ -65,47 +75,51 @@ else
                         </table>
                     </div>
                 }
-                else if (!string.IsNullOrEmpty(selectedRealEstateType))
+                else if (!string.IsNullOrEmpty(_selectedRealEstateType))
                 {
-                    <p class="text-muted">Нет данных для выбранного типа недвижимости.</p>
+                    <p class="text-muted">
+                        There is no data available for the selected property type.
+                    </p>
                 }
             </div>
         </div>
 
         <div class="card mb-4">
             <div class="card-header">
-                <h5>Продавцы за Период</h5>
+                <h5>
+                    Sellers for the Period
+                </h5>
             </div>
             <div class="card-body">
                 <div class="row mb-3">
                     <div class="col-md-3">
-                        <label class="form-label">Начальная Дата:</label>
+                        <label class="form-label">Start Data:</label>
                         <InputDate class="form-control" @bind-Value="startDate" />
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Конечная Дата:</label>
+                        <label class="form-label">End Data:</label>
                         <InputDate class="form-control" @bind-Value="endDate" />
                     </div>
                     <div class="col-md-3 align-self-end">
-                        <button class="btn btn-primary" @onclick="LoadSellersByPeriod">Загрузить</button>
+                        <button class="btn btn-primary" @onclick="LoadSellersByPeriod">Download</button>
                     </div>
                 </div>
 
-                @if (sellersByPeriod != null && sellersByPeriod.Any())
+                @if (_sellersByPeriod != null && _sellersByPeriod.Any())
                 {
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>ФИО</th>
-                                    <th>Паспорт</th>
-                                    <th>Телефон</th>
-                                    <th>Адрес</th>
+                                    <th>FIO</th>
+                                    <th>Pasport</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
                                     <th>Email</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var seller in sellersByPeriod)
+                                @foreach (var seller in _sellersByPeriod)
                                 {
                                     <tr>
                                         <td>@seller.FirstAndLastName</td>
@@ -119,23 +133,27 @@ else
                         </table>
                     </div>
                 }
-                else if (sellersByPeriod != null)
+                else if (_sellersByPeriod != null)
                 {
-                    <p class="text-muted">Нет продавцов за указанный период.</p>
+                    <p class="text-muted">
+                        There are no sellers for the specified period.
+                    </p>
                 }
             </div>
         </div>
 
         <div class="card mb-4">
             <div class="card-header">
-                <h5>Соответствующие Продавцы для Покупателя</h5>
+                <h5>Relevant Sellers for Buyer</h5>
             </div>
             <div class="card-body">
                 <div class="row mb-3">
                     <div class="col-md-4">
-                        <label for="buyerSelect" class="form-label">Покупатель:</label>
+                        <label for="buyerSelect" class="form-label">Buyer:</label>
                         <select id="buyerSelect" class="form-select" @onchange="OnBuyerSelected">
-                            <option value="">--Выберите Покупателя--</option>
+                            <option value="">
+                                --Select Buyer--
+                            </option>
                             @foreach (var client in allClients)
                             {
                                 <option value="@client.Id">@client.FirstAndLastName</option>
@@ -144,38 +162,40 @@ else
                     </div>
                     <div class="col-md-2 align-self-end">
                         <button class="btn btn-primary" @onclick="LoadMatchingSellers" disabled="@(!CanLoadMatchingSellers)">
-                            Загрузить
+                            Download
                         </button>
                     </div>
                 </div>
 
-                @if (matchingSellers != null)
+                @if (_matchingSellers != null)
                 {
                     <div class="mb-3">
-                        <h6>Недвижимость:</h6>
+                        <h6>
+                            Real estate:
+                        </h6>
                         <ul class="list-group">
-                            <li class="list-group-item"><strong>Тип:</strong> @matchingSellers.RealEstate.Type</li>
-                            <li class="list-group-item"><strong>Площадь:</strong> @matchingSellers.RealEstate.Square м²</li>
-                            <li class="list-group-item"><strong>Количество комнат:</strong> @matchingSellers.RealEstate.NumberOfRooms</li>
-                            <li class="list-group-item"><strong>Адрес:</strong> @matchingSellers.RealEstate.Address</li>
+                            <li class="list-group-item"><strong>Type:</strong> @_matchingSellers.RealEstate.Type</li>
+                            <li class="list-group-item"><strong>Square:</strong> @_matchingSellers.RealEstate.Square м²</li>
+                            <li class="list-group-item"><strong>Number of rooms:</strong> @_matchingSellers.RealEstate.NumberOfRooms</li>
+                            <li class="list-group-item"><strong>Address:</strong> @_matchingSellers.RealEstate.Address</li>
                         </ul>
                     </div>
 
                     <div>
-                        <h6>Продавцы:</h6>
+                        <h6>Sellers:</h6>
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>ФИО</th>
-                                        <th>Паспорт</th>
-                                        <th>Телефон</th>
-                                        <th>Адрес</th>
+                                        <th>FIO</th>
+                                        <th>Pasport</th>
+                                        <th>Phone</th>
+                                        <th>Address</th>
                                         <th>Email</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var seller in matchingSellers.Sellers)
+                                    @foreach (var seller in _matchingSellers.Sellers)
                                     {
                                         <tr>
                                             <td>@seller.FirstAndLastName</td>
@@ -192,28 +212,36 @@ else
                 }
                 else if (buyerId > 0)
                 {
-                    <p class="text-muted">Нет соответствующих продавцов для указанного покупателя.</p>
+                    <p class="text-muted">
+                        There are no matching sellers for the specified buyer.
+                    </p>
                 }
             </div>
         </div>
 
         <div class="card mb-4">
             <div class="card-header">
-                <h5>Количество Заказов по Типу</h5>
+                <h5>
+                    Number of Orders by Type
+                </h5>
             </div>
             <div class="card-body">
-                @if (orderCountByType != null && orderCountByType.Any())
+                @if (_orderCountByType != null && _orderCountByType.Any())
                 {
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Тип Недвижимости</th>
-                                    <th>Количество Заказов</th>
+                                    <th>
+                                        Property Type
+                                    </th>
+                                    <th>
+                                        Number of Orders
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var item in orderCountByType)
+                                @foreach (var item in _orderCountByType)
                                 {
                                     <tr>
                                         <td>@item.RealEstateType</td>
@@ -226,28 +254,34 @@ else
                 }
                 else
                 {
-                    <p class="text-muted">Нет данных о заказах по типу недвижимости.</p>
+                    <p class="text-muted">
+                        There is no data on orders by property type.
+                    </p>
                 }
             </div>
         </div>
 
         <div class="card mb-4">
             <div class="card-header">
-                <h5>Топ Покупателей</h5>
+                <h5>
+                    Top Buyers
+                </h5>
             </div>
             <div class="card-body">
-                @if (topPurchasers != null && topPurchasers.Any())
+                @if (_topPurchasers != null && _topPurchasers.Any())
                 {
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Клиент</th>
-                                    <th>Количество Заказов</th>
+                                    <th>Client</th>
+                                    <th>
+                                        Number of Orders
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var purchaser in topPurchasers)
+                                @foreach (var purchaser in _topPurchasers)
                                 {
                                     <tr>
                                         <td>@purchaser.Client.FirstAndLastName</td>
@@ -260,28 +294,32 @@ else
                 }
                 else
                 {
-                    <p class="text-muted">Нет данных о топ покупателях.</p>
+                    <p class="text-muted">No data on top buyers.</p>
                 }
             </div>
         </div>
 
         <div class="card mb-4">
             <div class="card-header">
-                <h5>Топ Продавцов</h5>
+                <h5>
+                    Top Sellers
+                </h5>
             </div>
             <div class="card-body">
-                @if (topSellers != null && topSellers.Any())
+                @if (_topSellers != null && _topSellers.Any())
                 {
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Клиент</th>
-                                    <th>Количество Заказов</th>
+                                    <th>Client</th>
+                                    <th>
+                                        Number of Orders
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var seller in topSellers)
+                                @foreach (var seller in _topSellers)
                                 {
                                     <tr>
                                         <td>@seller.Client.FirstAndLastName</td>
@@ -294,28 +332,28 @@ else
                 }
                 else
                 {
-                    <p class="text-muted">Нет данных о топ продавцах.</p>
+                    <p class="text-muted">No data on top sellers.</p>
                 }
             </div>
         </div>
 
         <div class="card mb-4">
             <div class="card-header">
-                <h5>Заказы с Минимальной Ценой</h5>
+                <h5>Orders with Minimum Price</h5>
             </div>
             <div class="card-body">
-                @if (minPriceOrders != null && minPriceOrders.Any())
+                @if (_minPriceOrders != null && _minPriceOrders.Any())
                 {
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Клиент</th>
-                                    <th>Цена Заказа</th>
+                                    <th>Client</th>
+                                    <th>Order Price</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var order in minPriceOrders)
+                                @foreach (var order in _minPriceOrders)
                                 {
                                     <tr>
                                         <td>@order.Client.FirstAndLastName</td>
@@ -328,7 +366,7 @@ else
                 }
                 else
                 {
-                    <p class="text-muted">Нет заказов с минимальной ценой.</p>
+                    <p class="text-muted">There are no orders with a minimum price.</p>
                 }
             </div>
         </div>
@@ -338,21 +376,21 @@ else
 @code {
     private bool isLoading = true;
 
-    private IList<ClientDto> clientsByType;
-    private string selectedRealEstateType;
+    private IList<ClientDto>? _clientsByType;
+    private string? _selectedRealEstateType;
     private List<string> realEstateTypes = new List<string> { "Residential", "Uninhabitable" };
 
-    private IList<ClientDto> sellersByPeriod;
+    private IList<ClientDto>? _sellersByPeriod;
     private DateTime startDate = DateTime.Today.AddMonths(-1);
     private DateTime endDate = DateTime.Today;
 
-    private SellerRealEstateDto matchingSellers;
+    private SellerRealEstateDto? _matchingSellers;
     private int buyerId;
     private IList<ClientGetDto> allClients = new List<ClientGetDto>();
-    private IList<RealEstateOrderCountDto> orderCountByType;
-    private IList<ClientOrderCountDto> topPurchasers;
-    private IList<ClientOrderCountDto> topSellers;
-    private IList<ClientOrderPriceDto> minPriceOrders;
+    private IList<RealEstateOrderCountDto>? _orderCountByType;
+    private IList<ClientOrderCountDto>? _topPurchasers;
+    private IList<ClientOrderCountDto>? _topSellers;
+    private IList<ClientOrderPriceDto>? _minPriceOrders;
 
     protected override async Task OnInitializedAsync()
     {
@@ -364,30 +402,26 @@ else
     {
         allClients = await ApiWrapper.GetClients();
 
-        if (!string.IsNullOrEmpty(selectedRealEstateType))
+        if (!string.IsNullOrEmpty(_selectedRealEstateType))
         {
-            clientsByType = await ApiWrapper.ClientsByRealestateTypeAsync(selectedRealEstateType);
+            _clientsByType = await ApiWrapper.ClientsByRealestateTypeAsync(_selectedRealEstateType);
         }
 
-        orderCountByType = await ApiWrapper.OrderCountByTypeAsync();
+        _orderCountByType = await ApiWrapper.OrderCountByTypeAsync();
 
-        topPurchasers = await ApiWrapper.TopPurchasersAsync();
+        _topPurchasers = await ApiWrapper.TopPurchasersAsync();
 
-        topSellers = await ApiWrapper.TopSellersAsync();
+        _topSellers = await ApiWrapper.TopSellersAsync();
 
-        minPriceOrders = await ApiWrapper.MinPriceOrdersAsync();
+        _minPriceOrders = await ApiWrapper.MinPriceOrdersAsync();
     }
 
     private async Task OnRealEstateTypeChanged(ChangeEventArgs e)
     {
-        selectedRealEstateType = e.Value?.ToString();
-        if (!string.IsNullOrEmpty(selectedRealEstateType))
+        _selectedRealEstateType = e.Value?.ToString() ?? string.Empty;
+        if (!string.IsNullOrEmpty(_selectedRealEstateType))
         {
-            clientsByType = await ApiWrapper.ClientsByRealestateTypeAsync(selectedRealEstateType);
-        }
-        else
-        {
-            clientsByType = null;
+            _clientsByType = await ApiWrapper.ClientsByRealestateTypeAsync(_selectedRealEstateType);
         }
     }
 
@@ -395,11 +429,11 @@ else
     {
         if (startDate <= endDate)
         {
-            sellersByPeriod = await ApiWrapper.SellersByPeriodAsync(startDate, endDate);
+            _sellersByPeriod = await ApiWrapper.SellersByPeriodAsync(startDate, endDate);
         }
         else
         {
-            sellersByPeriod = new List<ClientDto>();
+            _sellersByPeriod = new List<ClientDto>();
         }
     }
 
@@ -407,12 +441,9 @@ else
     {
         if (buyerId > 0)
         {
-            matchingSellers = await ApiWrapper.MatchingSellersForBuyerAsync(buyerId);
+            _matchingSellers = await ApiWrapper.MatchingSellersForBuyerAsync(buyerId);
         }
-        else
-        {
-            matchingSellers = null;
-        }
+ 
     }
 
     private void OnBuyerSelected(ChangeEventArgs e)
